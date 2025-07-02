@@ -8,6 +8,8 @@
     <h2>🏋️‍♂️ Мої тренування</h2>
 
     <form method="post" class="mb-4">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
         <div class="row">
             <div class="col-md-6 mb-2">
                 <label asp-for="NewWorkout.Date" class="form-label">Дата</label>
@@ -19,6 +21,29 @@
                 <input asp-for="NewWorkout.Notes" class="form-control" />
                 <span asp-validation-for="NewWorkout.Notes" class="text-danger"></span>
             </div>
+            <div class="col-md-6 mb-2">
+                <label asp-for="NewWorkout.TrainingProgramId" class="form-label">Програма</label>
+                @if (Model.AvailablePrograms.Any())
+                {
+                    <p><strong>Програма у списку: @Model.AvailablePrograms.Count</strong></p>
+                    <ul>
+                        @foreach (var p in Model.AvailablePrograms)
+                        {
+                            <li>ID: @p.Id — Назва: @(string.IsNullOrWhiteSpace(p.Name) ? "<порожня>" : p.Name)</li>
+                        }
+                    </ul>
+                }
+
+                <select asp-for="NewWorkout.TrainingProgramId" class="form-select">
+                    <option value="">-- Оберіть програму --</option>
+                    @foreach (var p in Model.AvailablePrograms)
+                    {
+                        <option value="@p.Id">@p.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="NewWorkout.TrainingProgramId" class="text-danger"></span>
+            </div>
+
         </div>
         <button class="btn btn-primary mt-2">➕ Додати тренування</button>
     </form>
@@ -40,7 +65,9 @@
                     <td>@workout.Date.ToShortDateString()</td>
                     <td>@workout.Notes</td>
                     <td>
-                        <a href="/WorkoutDetails?id=@workout.Id" class="btn btn-sm btn-outline-primary">Деталі</a>
+                        <a asp-page="/WorkoutDetails" asp-route-id="@workout.Id" class="btn btn-sm btn-outline-primary">
+                            Деталі
+                        </a>
                     </td>
                 </tr>
             }

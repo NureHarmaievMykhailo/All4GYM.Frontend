@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using All4GYM.Frontend.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -22,19 +23,41 @@ public class WorkoutsModel : BasePageModel
     [BindProperty]
     public NewWorkoutDto NewWorkout { get; set; } = new();
 
+    public List<TrainingProgramItem> AvailablePrograms { get; set; } = new();
+
+    public class TrainingProgramItem
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+    }
+
     public class WorkoutItem
     {
+        [JsonPropertyName("id")]
         public int Id { get; set; }
+
+        [JsonPropertyName("date")]
         public DateTime Date { get; set; }
+
+        [JsonPropertyName("notes")]
         public string? Notes { get; set; }
     }
 
     public class NewWorkoutDto
     {
-        [Required]
+        [Required(ErrorMessage = "Оберіть програму")]
+        [JsonPropertyName("trainingProgramId")]
+        public int TrainingProgramId { get; set; }
+
+        [Required(ErrorMessage = "Оберіть дату")]
         [DataType(DataType.Date)]
+        [JsonPropertyName("date")]
         public DateTime Date { get; set; } = DateTime.Today;
 
+        [JsonPropertyName("notes")]
         public string? Notes { get; set; }
     }
 
@@ -47,11 +70,25 @@ public class WorkoutsModel : BasePageModel
         var jwt = Request.Cookies["jwt"];
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
-        var response = await client.GetAsync("api/Workout");
-        if (response.IsSuccessStatusCode)
+        try
         {
-            var json = await response.Content.ReadAsStringAsync();
-            Workouts = JsonSerializer.Deserialize<List<WorkoutItem>>(json)!;
+            var response = await client.GetAsync("api/Workout");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                Workouts = JsonSerializer.Deserialize<List<WorkoutItem>>(json)!;
+            }
+
+            var programsRes = await client.GetAsync("api/TrainingProgram");
+            if (programsRes.IsSuccessStatusCode)
+            {
+                var json = await programsRes.Content.ReadAsStringAsync();
+                AvailablePrograms = JsonSerializer.Deserialize<List<TrainingProgramItem>>(json)!;
+            }
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, $"Не вдалося завантажити дані: {ex.Message}");
         }
 
         return Page();
@@ -67,19 +104,40 @@ public class WorkoutsModel : BasePageModel
         var jwt = Request.Cookies["jwt"];
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
-        var content = new StringContent(
-            JsonSerializer.Serialize(NewWorkout),
-            Encoding.UTF8,
-            "application/json");
-
-        var response = await client.PostAsync("api/Workout", content);
-
-        if (response.IsSuccessStatusCode)
+        try
         {
-            return RedirectToPage();
+            var content = new StringContent(
+                JsonSerializer.Serialize(NewWorkout),
+                Encoding.UTF8,
+                "application/json");
+
+            var response = await client.PostAsync("api/Workout", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var created = JsonDocument.Parse(json).RootElement;
+
+                if (created.TryGetProperty("id", out var idProp) && idProp.TryGetInt32(out var newId))
+                {
+                    return RedirectToPage("/WorkoutDetails", new { id = newId });
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Створено тренування, але не вдалося отримати ID.");
+                }
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                ModelState.AddModelError(string.Empty, $"Помилка при створенні тренування: {response.StatusCode} — {error}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, $"Внутрішня помилка: {ex.Message}");
         }
 
-        ModelState.AddModelError(string.Empty, "Помилка при створенні тренування");
         return await OnGetAsync();
     }
 }

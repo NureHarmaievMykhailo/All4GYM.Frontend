@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../buildMultiTargeting/All4GYM.Frontend.props" />
+</Project>

@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using All4GYM.Frontend.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -31,25 +32,47 @@ public class WorkoutDetailsModel : BasePageModel
 
     public class ExerciseItem
     {
+        [JsonPropertyName("exerciseId")]
         public int ExerciseId { get; set; }
+
+        [JsonPropertyName("exerciseName")]
         public string ExerciseName { get; set; } = null!;
+
+        [JsonPropertyName("sets")]
         public int Sets { get; set; }
+
+        [JsonPropertyName("reps")]
         public int Reps { get; set; }
+
+        [JsonPropertyName("weight")]
         public float Weight { get; set; }
     }
 
     public class ExerciseOption
     {
+        [JsonPropertyName("id")]
         public int Id { get; set; }
+
+        [JsonPropertyName("name")]
         public string Name { get; set; } = null!;
     }
 
     public class AddExerciseDto
     {
+        [JsonPropertyName("workoutId")]
+        public int WorkoutId { get; set; }
+
         [Required]
+        [JsonPropertyName("exerciseId")]
         public int ExerciseId { get; set; }
+
+        [JsonPropertyName("sets")]
         public int Sets { get; set; }
+
+        [JsonPropertyName("reps")]
         public int Reps { get; set; }
+
+        [JsonPropertyName("weight")]
         public float Weight { get; set; }
     }
 
@@ -62,17 +85,23 @@ public class WorkoutDetailsModel : BasePageModel
         var jwt = Request.Cookies["jwt"];
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
-        // workout details
+        // Деталі тренування
         var workoutRes = await client.GetAsync($"api/Workout/{Id}");
         if (workoutRes.IsSuccessStatusCode)
         {
             var json = await workoutRes.Content.ReadAsStringAsync();
             var workout = JsonDocument.Parse(json).RootElement;
-            WorkoutDate = DateTime.Parse(workout.GetProperty("date").ToString());
+
+            if (workout.TryGetProperty("date", out var dateProp) && dateProp.ValueKind == JsonValueKind.String)
+            {
+                if (DateTime.TryParse(dateProp.GetString(), out var parsedDate))
+                    WorkoutDate = parsedDate;
+            }
+
             WorkoutNotes = workout.GetProperty("notes").GetString();
         }
 
-        // exercises in workout
+        // Вправи в цьому тренуванні
         var exercisesRes = await client.GetAsync($"api/workouts/{Id}/exercises");
         if (exercisesRes.IsSuccessStatusCode)
         {
@@ -80,7 +109,7 @@ public class WorkoutDetailsModel : BasePageModel
             Exercises = JsonSerializer.Deserialize<List<ExerciseItem>>(json)!;
         }
 
-        // available exercises
+        // Усі доступні вправи
         var optionsRes = await client.GetAsync("api/Exercise");
         if (optionsRes.IsSuccessStatusCode)
         {
@@ -95,6 +124,8 @@ public class WorkoutDetailsModel : BasePageModel
     {
         if (!ModelState.IsValid) return await OnGetAsync();
         if (UserId == null) return RedirectToPage("/Login");
+
+        NewExercise.WorkoutId = Id;
 
         var client = _httpClientFactory.CreateClient();
         client.BaseAddress = new Uri("http://localhost:5092/");
