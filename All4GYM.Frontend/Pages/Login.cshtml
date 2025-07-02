@@ -1,0 +1,39 @@
+@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Вхід";
+}
+
+<div class="container mt-5" style="max-width: 500px;">
+    <h2 class="mb-4">Вхід до облікового запису</h2>
+
+    <form method="post">
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">Email</label>
+            <input asp-for="Email" type="email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label">Пароль</label>
+            <input asp-for="Password" type="password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Увійти</button>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger mt-3">@Model.ErrorMessage</div>
+        }
+    </form>
+
+    <p class="mt-3 text-center">
+        Не маєш акаунту?
+        <a asp-page="/Register">Зареєструватися</a>
+    </p>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

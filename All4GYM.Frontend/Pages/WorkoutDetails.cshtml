@@ -1,0 +1,78 @@
+@page
+@model WorkoutDetailsModel
+@{
+    ViewData["Title"] = "Деталі тренування";
+}
+
+<div class="container mt-5">
+    <h2>📋 Вправи у тренуванні</h2>
+    <p><strong>Дата:</strong> @Model.WorkoutDate.ToShortDateString()</p>
+    <p><strong>Нотатки:</strong> @Model.WorkoutNotes</p>
+
+    <form method="post" class="mb-4">
+        <div class="row">
+            <div class="col-md-4">
+                <label class="form-label">Вправа</label>
+                <select asp-for="NewExercise.ExerciseId" class="form-select">
+                    <option value="">-- Оберіть вправу --</option>
+                    @foreach (var ex in Model.AvailableExercises)
+                    {
+                        <option value="@ex.Id">@ex.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Підходи</label>
+                <input asp-for="NewExercise.Sets" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Повтори</label>
+                <input asp-for="NewExercise.Reps" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Вага</label>
+                <input asp-for="NewExercise.Weight" class="form-control" />
+            </div>
+            <div class="col-md-2 d-grid">
+                <label class="form-label invisible">Додати</label>
+                <button class="btn btn-success" type="submit">➕</button>
+            </div>
+        </div>
+    </form>
+
+    <h4>Список вправ</h4>
+    @if (Model.Exercises.Any())
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Назва</th>
+                    <th>Підходи</th>
+                    <th>Повтори</th>
+                    <th>Вага</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ex in Model.Exercises)
+                {
+                    <tr>
+                        <td>@ex.ExerciseName</td>
+                        <td>@ex.Sets</td>
+                        <td>@ex.Reps</td>
+                        <td>@ex.Weight</td>
+                        <td>
+                            <form method="post" asp-page-handler="Delete" asp-route-exerciseId="@ex.ExerciseId">
+                                <button class="btn btn-sm btn-danger">🗑️</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Немає доданих вправ.</p>
+    }
+</div>

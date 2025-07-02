@@ -1,0 +1,44 @@
+@page
+@model ProfileModel
+@{
+    ViewData["Title"] = "Мій профіль";
+}
+
+<div class="container mt-5" style="max-width: 600px;">
+    <h2>👤 Мій профіль</h2>
+
+    <form method="post">
+        <div class="mb-3">
+            <label asp-for="FullName" class="form-label">Імʼя</label>
+            <input asp-for="FullName" class="form-control" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">Email</label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Роль</label>
+            <input value="@Model.Role" class="form-control" disabled />
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">💾 Зберегти</button>
+
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="alert alert-success mt-3">@Model.SuccessMessage</div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger mt-3">@Model.ErrorMessage</div>
+        }
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

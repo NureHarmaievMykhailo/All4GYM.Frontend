@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "All4GYM.Frontend", "All4GYM.Frontend\All4GYM.Frontend.csproj", "{42A3D9FF-5A42-4DF4-B790-5942175B7CD9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{42A3D9FF-5A42-4DF4-B790-5942175B7CD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42A3D9FF-5A42-4DF4-B790-5942175B7CD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42A3D9FF-5A42-4DF4-B790-5942175B7CD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42A3D9FF-5A42-4DF4-B790-5942175B7CD9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,58 @@
+@page
+@model WorkoutsModel
+@{
+    ViewData["Title"] = "Мої тренування";
+}
+
+<div class="container mt-5">
+    <h2>🏋️‍♂️ Мої тренування</h2>
+
+    <form method="post" class="mb-4">
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                <label asp-for="NewWorkout.Date" class="form-label">Дата</label>
+                <input asp-for="NewWorkout.Date" type="date" class="form-control" />
+                <span asp-validation-for="NewWorkout.Date" class="text-danger"></span>
+            </div>
+            <div class="col-md-6 mb-2">
+                <label asp-for="NewWorkout.Notes" class="form-label">Нотатки</label>
+                <input asp-for="NewWorkout.Notes" class="form-control" />
+                <span asp-validation-for="NewWorkout.Notes" class="text-danger"></span>
+            </div>
+        </div>
+        <button class="btn btn-primary mt-2">➕ Додати тренування</button>
+    </form>
+
+    @if (Model.Workouts.Any())
+    {
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Нотатки</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var workout in Model.Workouts)
+            {
+                <tr>
+                    <td>@workout.Date.ToShortDateString()</td>
+                    <td>@workout.Notes</td>
+                    <td>
+                        <a href="/WorkoutDetails?id=@workout.Id" class="btn btn-sm btn-outline-primary">Деталі</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Немає створених тренувань.</p>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
