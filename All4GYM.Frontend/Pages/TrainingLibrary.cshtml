@@ -1,0 +1,80 @@
+@page
+@model TrainingLibraryModel
+@{
+    ViewData["Title"] = "Бібліотека тренувань";
+}
+
+<div class="container mt-4">
+    <h2>📚 Бібліотека тренувальних програм</h2>
+
+    <div class="mb-3">
+        @foreach (var pair in new[] {
+                      new { Ua = "Кардіо", En = "Cardio" },
+                      new { Ua = "Силові", En = "Strength" },
+                      new { Ua = "Гнучкість", En = "Flexibility" }
+                  })
+        {
+            <a class="btn btn-outline-primary me-2"
+               href="?category=@pair.En">@pair.Ua</a>
+        }
+        <a class="btn btn-outline-secondary" href="/TrainingLibrary">Усі</a>
+    </div>
+    
+    @{
+        var categoryMap = new Dictionary<string, string>
+        {
+            { "Cardio", "Кардіо" },
+            { "Strength", "Силові" },
+            { "Flexibility", "Гнучкість" }
+        };
+        
+        string GetYoutubeEmbedUrl(string originalUrl)
+        {
+            if (originalUrl.Contains("shorts/"))
+            {
+                var id = originalUrl.Split("shorts/")[1].Split('?')[0];
+                return $"https://www.youtube.com/embed/{id}";
+            }
+            else if (originalUrl.Contains("watch?v="))
+            {
+                var id = originalUrl.Split("watch?v=")[1].Split('&')[0];
+                return $"https://www.youtube.com/embed/{id}";
+            }
+            return originalUrl;
+        }
+    }
+
+    <h4>🎬 Відео тренувань</h4>
+    <div class="row">
+        @foreach (var video in Model.Videos)
+        {
+            var categoryUa = categoryMap.ContainsKey(video.Category ?? "") ? categoryMap[video.Category] : video.Category;
+
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <iframe class="card-img-top"
+                            src="@GetYoutubeEmbedUrl(video.Url)"
+                            allowfullscreen
+                            style="aspect-ratio: 16/9; width: 100%; border: none;">
+                    </iframe>
+                    <div class="card-body">
+                        <h5 class="card-title">@video.Title</h5>
+                        <p class="card-text"><small>Категорія: @categoryUa</small></p>
+                        <p class="card-text"><small>Тривалість: @video.Duration хв</small></p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+
+    <h4 class="mt-5">📋 Тренувальні програми</h4>
+    <ul class="list-group">
+        @foreach (var p in Model.Programs)
+        {
+            <li class="list-group-item">
+                <strong>@p.Name</strong> — @p.Description
+            </li>
+        }
+    </ul>
+</div>

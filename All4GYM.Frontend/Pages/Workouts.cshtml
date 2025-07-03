@@ -23,16 +23,6 @@
             </div>
             <div class="col-md-6 mb-2">
                 <label asp-for="NewWorkout.TrainingProgramId" class="form-label">Програма</label>
-                @if (Model.AvailablePrograms.Any())
-                {
-                    <p><strong>Програма у списку: @Model.AvailablePrograms.Count</strong></p>
-                    <ul>
-                        @foreach (var p in Model.AvailablePrograms)
-                        {
-                            <li>ID: @p.Id — Назва: @(string.IsNullOrWhiteSpace(p.Name) ? "<порожня>" : p.Name)</li>
-                        }
-                    </ul>
-                }
 
                 <select asp-for="NewWorkout.TrainingProgramId" class="form-select">
                     <option value="">-- Оберіть програму --</option>
@@ -43,7 +33,9 @@
                 </select>
                 <span asp-validation-for="NewWorkout.TrainingProgramId" class="text-danger"></span>
             </div>
-
+            <div class="col-md-6 mb-2 d-flex align-items-end">
+                <a asp-page="/TrainingLibrary" class="btn btn-outline-info ms-2">📚 До бібліотеки</a>
+            </div>
         </div>
         <button class="btn btn-primary mt-2">➕ Додати тренування</button>
     </form>
