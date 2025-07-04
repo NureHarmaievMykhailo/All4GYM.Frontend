@@ -1,0 +1,84 @@
+@page
+@using System.Text.Json
+@model GroupSessionsModel
+@{
+    ViewData["Title"] = "Групові сесії";
+}
+
+<div class="container mt-5">
+    <h2>📅 Групові тренування</h2>
+
+    @if (Model.Sessions.Any())
+    {
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Назва</th>
+                <th>Зал</th>
+                <th>Тренер</th>
+                <th>Початок</th>
+                <th>Тривалість (хв)</th>
+                <th>Учасники</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var s in Model.Sessions)
+            {
+                <tr>
+                    <td>@s.Title</td>
+                    <td>@s.GymName</td>
+                    <td>@s.TrainerName</td>
+                    <td>@s.StartTime.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@s.Duration</td>
+                    <td>@s.CurrentParticipants / @s.MaxParticipants</td>
+                    <td>
+                        @if (Model.UserSessionIds.Contains(s.Id))
+                        {
+                            <form method="post" asp-page-handler="Cancel" asp-route-sessionId="@s.Id">
+                                <button class="btn btn-outline-danger btn-sm">Скасувати</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form method="post" asp-page-handler="" asp-route-sessionId="@s.Id">
+                                <button class="btn btn-success btn-sm"
+                                        @(s.CurrentParticipants >= s.MaxParticipants ? "disabled" : "")>
+                                    Записатись
+                                </button>
+                            </form>
+                        }
+                    </td>
+                    @{
+                        string? cleanError = null;
+                        if (TempData["ErrorMessage"] is string rawError)
+                        {
+                            try
+                            {
+                                var errorObj = JsonSerializer.Deserialize<Dictionary<string, string>>(rawError);
+                                cleanError = errorObj?["message"];
+                            }
+                            catch
+                            {
+                                cleanError = rawError;
+                            }
+
+                            TempData.Remove("ErrorMessage"); // ⬅️ очищення
+                        }
+                    }
+                    @if (!string.IsNullOrEmpty(cleanError))
+                    {
+                        <div class="alert alert-danger">
+                            <span class="me-2">❌</span> @cleanError
+                        </div>
+                    }
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Наразі немає активних групових сесій.</p>
+    }
+</div>
