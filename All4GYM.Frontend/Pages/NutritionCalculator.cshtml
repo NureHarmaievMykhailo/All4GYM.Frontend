@@ -1,0 +1,69 @@
+@page
+@model All4GYM.Frontend.Pages.NutritionCalculatorModel
+@{
+    ViewData["Title"] = "Калькулятор калорій і БЖВ";
+}
+
+<div class="container mt-5">
+    <h2>🍽️ Калькулятор калорій і БЖВ</h2>
+
+    <form method="post" class="mb-4">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label asp-for="Input.Gender" class="form-label">Стать</label>
+                <select asp-for="Input.Gender" class="form-select">
+                    <option value="male">Чоловік</option>
+                    <option value="female">Жінка</option>
+                </select>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="Input.Age" class="form-label">Вік</label>
+                <input asp-for="Input.Age" class="form-control" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="Input.Weight" class="form-label">Вага (кг)</label>
+                <input asp-for="Input.Weight" class="form-control" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="Input.Height" class="form-label">Зріст (см)</label>
+                <input asp-for="Input.Height" class="form-control" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="Input.ActivityLevel" class="form-label">Активність</label>
+                <select asp-for="Input.ActivityLevel" class="form-select">
+                    <option value="low">Низька</option>
+                    <option value="moderate">Середня</option>
+                    <option value="high">Висока</option>
+                </select>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="Input.Goal" class="form-label">Мета</label>
+                <select asp-for="Input.Goal" class="form-select">
+                    <option value="lose">Схуднення</option>
+                    <option value="maintain">Підтримка</option>
+                    <option value="gain">Набір маси</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-primary">🔍 Розрахувати</button>
+    </form>
+
+    @if (Model.Result != null)
+    {
+        <div class="alert alert-success">
+            <h5>Ваші добові потреби:</h5>
+            <ul>
+                <li>Калорії: <strong>@Model.Result.Calories</strong> ккал</li>
+                <li>Білки: <strong>@Model.Result.Protein</strong> г</li>
+                <li>Жири: <strong>@Model.Result.Fat</strong> г</li>
+                <li>Вуглеводи: <strong>@Model.Result.Carbs</strong> г</li>
+            </ul>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

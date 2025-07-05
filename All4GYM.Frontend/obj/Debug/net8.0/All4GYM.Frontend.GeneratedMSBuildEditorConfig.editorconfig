@@ -22,6 +22,10 @@ build_property._RazorSourceGeneratorDebug =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRXJyb3IuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/FoodItems.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRm9vZEl0ZW1zLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/GroupSessions.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvR3JvdXBTZXNzaW9ucy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -36,6 +40,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Logout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTG9nb3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/MealLog.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTWVhbExvZy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/NutritionCalculator.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTnV0cml0aW9uQ2FsY3VsYXRvci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Profile.cshtml]

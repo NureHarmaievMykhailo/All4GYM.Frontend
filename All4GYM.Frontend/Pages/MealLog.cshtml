@@ -1,0 +1,78 @@
+@page
+@model MealLogModel
+@{
+    ViewData["Title"] = "Щоденник харчування";
+}
+
+<div class="container mt-5">
+    <h2>🍽️ Щоденник харчування</h2>
+
+    <form method="post" class="mb-4">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <label asp-for="NewLog.Date" class="form-label">Дата</label>
+                <input asp-for="NewLog.Date" type="date" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label asp-for="NewLog.Calories" class="form-label">Ккал</label>
+                <input asp-for="NewLog.Calories" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label asp-for="NewLog.Proteins" class="form-label">Білки</label>
+                <input asp-for="NewLog.Proteins" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label asp-for="NewLog.Fats" class="form-label">Жири</label>
+                <input asp-for="NewLog.Fats" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label asp-for="NewLog.Carbs" class="form-label">Вуглеводи</label>
+                <input asp-for="NewLog.Carbs" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label asp-for="NewLog.Notes" class="form-label">Нотатки</label>
+                <input asp-for="NewLog.Notes" class="form-control" />
+            </div>
+        </div>
+        <button class="btn btn-primary mt-2">💾 Зберегти</button>
+    </form>
+
+    @if (Model.Logs.Any())
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Ккал</th>
+                    <th>Білки</th>
+                    <th>Жири</th>
+                    <th>Вуглеводи</th>
+                    <th>Нотатки</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model.Logs)
+                {
+                    <tr>
+                        <td>@log.Date.ToShortDateString()</td>
+                        <td>@log.Calories</td>
+                        <td>@log.Proteins</td>
+                        <td>@log.Fats</td>
+                        <td>@log.Carbs</td>
+                        <td>@log.Notes</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Немає записів.</p>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

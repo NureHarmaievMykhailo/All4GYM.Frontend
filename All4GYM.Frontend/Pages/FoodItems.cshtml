@@ -1,0 +1,54 @@
+@page
+@model FoodItemsModel
+@{
+    ViewData["Title"] = "Продукти харчування";
+}
+
+<div class="container mt-5">
+    <h2>🍎 Продукти харчування</h2>
+
+    <form method="post" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <input asp-for="NewFoodItem.Name" class="form-control" placeholder="Назва продукту" />
+        </div>
+        <div class="col-md-2">
+            <input asp-for="NewFoodItem.Calories" class="form-control" placeholder="Ккал" />
+        </div>
+        <div class="col-md-2">
+            <input asp-for="NewFoodItem.Proteins" class="form-control" placeholder="Білки" />
+        </div>
+        <div class="col-md-2">
+            <input asp-for="NewFoodItem.Fats" class="form-control" placeholder="Жири" />
+        </div>
+        <div class="col-md-2">
+            <input asp-for="NewFoodItem.Carbs" class="form-control" placeholder="Вуглеводи" />
+        </div>
+        <div class="col-12">
+            <button class="btn btn-primary">➕ Додати продукт</button>
+        </div>
+    </form>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>Назва</th>
+            <th>Ккал</th>
+            <th>Б</th>
+            <th>Ж</th>
+            <th>В</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model.FoodItems)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Calories</td>
+                <td>@item.Proteins</td>
+                <td>@item.Fats</td>
+                <td>@item.Carbs</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
