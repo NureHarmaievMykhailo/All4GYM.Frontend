@@ -1,54 +1,49 @@
 @page
-@model FoodItemsModel
+@model FoodItemModel
 @{
-    ViewData["Title"] = "Продукти харчування";
+    ViewData["Title"] = "Додати продукт";
 }
 
 <div class="container mt-5">
-    <h2>🍎 Продукти харчування</h2>
+    <h2>🍏 Додати новий продукт</h2>
 
-    <form method="post" class="row g-3 mb-4">
-        <div class="col-md-4">
-            <input asp-for="NewFoodItem.Name" class="form-control" placeholder="Назва продукту" />
+    <form method="post" class="mt-4">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Input.Name" class="form-label">Назва</label>
+            <input asp-for="Input.Name" class="form-control" />
+            <span asp-validation-for="Input.Name" class="text-danger"></span>
         </div>
-        <div class="col-md-2">
-            <input asp-for="NewFoodItem.Calories" class="form-control" placeholder="Ккал" />
+
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label asp-for="Input.Calories" class="form-label">Калорії (на 100г)</label>
+                <input asp-for="Input.Calories" class="form-control" />
+                <span asp-validation-for="Input.Calories" class="text-danger"></span>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="Input.Proteins" class="form-label">Білки</label>
+                <input asp-for="Input.Proteins" class="form-control" type="number" step="0.01" />
+                <span asp-validation-for="Input.Proteins" class="text-danger"></span>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="Input.Fats" class="form-label">Жири</label>
+                <input asp-for="Input.Fats" class="form-control" type="number" step="0.01"/>
+                <span asp-validation-for="Input.Fats" class="text-danger"></span>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="Input.Carbs" class="form-label">Вуглеводи</label>
+                <input asp-for="Input.Carbs" class="form-control" type="number" step="0.01"/>
+                <span asp-validation-for="Input.Carbs" class="text-danger"></span>
+            </div>
         </div>
-        <div class="col-md-2">
-            <input asp-for="NewFoodItem.Proteins" class="form-control" placeholder="Білки" />
-        </div>
-        <div class="col-md-2">
-            <input asp-for="NewFoodItem.Fats" class="form-control" placeholder="Жири" />
-        </div>
-        <div class="col-md-2">
-            <input asp-for="NewFoodItem.Carbs" class="form-control" placeholder="Вуглеводи" />
-        </div>
-        <div class="col-12">
-            <button class="btn btn-primary">➕ Додати продукт</button>
-        </div>
+
+        <button class="btn btn-primary">➕ Додати</button>
+        <a asp-page="/MealLog" class="btn btn-secondary ms-2">⬅️ Назад</a>
     </form>
-
-    <table class="table table-bordered table-striped">
-        <thead>
-        <tr>
-            <th>Назва</th>
-            <th>Ккал</th>
-            <th>Б</th>
-            <th>Ж</th>
-            <th>В</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var item in Model.FoodItems)
-        {
-            <tr>
-                <td>@item.Name</td>
-                <td>@item.Calories</td>
-                <td>@item.Proteins</td>
-                <td>@item.Fats</td>
-                <td>@item.Carbs</td>
-            </tr>
-        }
-        </tbody>
-    </table>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

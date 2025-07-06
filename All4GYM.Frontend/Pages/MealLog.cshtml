@@ -1,75 +1,123 @@
 @page
 @model MealLogModel
 @{
-    ViewData["Title"] = "Щоденник харчування";
+    ViewData["Title"] = "Харчовий щоденник";
 }
 
 <div class="container mt-5">
-    <h2>🍽️ Щоденник харчування</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>🍽️ Харчовий щоденник</h2>
+    <a asp-page="/NutritionCalculator" class="btn btn-outline-primary">
+        🔢 Розрахувати денну норму калорій
+    </a>
+    </div>
 
-    <form method="post" class="mb-4">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-        <div class="row">
-            <div class="col-md-2">
-                <label asp-for="NewLog.Date" class="form-label">Дата</label>
-                <input asp-for="NewLog.Date" type="date" class="form-control" />
-            </div>
-            <div class="col-md-2">
-                <label asp-for="NewLog.Calories" class="form-label">Ккал</label>
-                <input asp-for="NewLog.Calories" class="form-control" />
-            </div>
-            <div class="col-md-2">
-                <label asp-for="NewLog.Proteins" class="form-label">Білки</label>
-                <input asp-for="NewLog.Proteins" class="form-control" />
-            </div>
-            <div class="col-md-2">
-                <label asp-for="NewLog.Fats" class="form-label">Жири</label>
-                <input asp-for="NewLog.Fats" class="form-control" />
-            </div>
-            <div class="col-md-2">
-                <label asp-for="NewLog.Carbs" class="form-label">Вуглеводи</label>
-                <input asp-for="NewLog.Carbs" class="form-control" />
-            </div>
-            <div class="col-md-2">
-                <label asp-for="NewLog.Notes" class="form-label">Нотатки</label>
-                <input asp-for="NewLog.Notes" class="form-control" />
-            </div>
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <label class="form-label">Дата</label>
+            <input type="date" name="SelectedDate" value="@Model.SelectedDate?.ToString("yyyy-MM-dd")" class="form-control" />
         </div>
-        <button class="btn btn-primary mt-2">💾 Зберегти</button>
+        <div class="mb-4 d-flex align-items-end">
+            <a asp-page="/FoodItems" class="btn btn-outline-success">
+                ➕ Додати новий продукт
+            </a>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Тип прийому їжі</label>
+            <select name="SelectedMealType" class="form-select">
+                <option value="">Усі</option>
+                <option value="Breakfast" selected="@("Breakfast" == Model.SelectedMealType)">Сніданок</option>
+                <option value="Lunch" selected="@("Lunch" == Model.SelectedMealType)">Обід</option>
+                <option value="Dinner" selected="@("Dinner" == Model.SelectedMealType)">Вечеря</option>
+                <option value="Snack" selected="@("Snack" == Model.SelectedMealType)">Перекус</option>
+            </select>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-outline-primary" type="submit">🔍 Пошук</button>
+        </div>
     </form>
 
-    @if (Model.Logs.Any())
+    <hr />
+
+    <form method="post" class="row g-3 mb-4">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="col-md-4">
+            <label asp-for="NewEntry.FoodItemId" class="form-label">Продукт</label>
+            <select asp-for="NewEntry.FoodItemId" class="form-select">
+                <option value="">-- Оберіть --</option>
+                @foreach (var item in Model.FoodItems)
+                {
+                    <option value="@item.Id">@item.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="NewEntry.Grams" class="form-label">Вага (г)</label>
+            <input asp-for="NewEntry.Grams" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label asp-for="NewEntry.MealType" class="form-label">Прийом їжі</label>
+            <select asp-for="NewEntry.MealType" class="form-select">
+                <option value="Breakfast">Сніданок</option>
+                <option value="Lunch">Обід</option>
+                <option value="Dinner">Вечеря</option>
+                <option value="Snack">Перекус</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button class="btn btn-success" type="submit">➕ Додати</button>
+        </div>
+    </form>
+
+    @if (Model.Entries.Any())
     {
-        <table class="table table-bordered">
-            <thead>
+        <table class="table table-bordered table-hover">
+            <thead class="table-light">
                 <tr>
-                    <th>Дата</th>
+                    <th>Прийом їжі</th>
+                    <th>Продукт</th>
+                    <th>Вага (г)</th>
                     <th>Ккал</th>
                     <th>Білки</th>
                     <th>Жири</th>
-                    <th>Вуглеводи</th>
-                    <th>Нотатки</th>
+                    <th>Вугл.</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var log in Model.Logs)
+                @foreach (var entry in Model.Entries)
                 {
                     <tr>
-                        <td>@log.Date.ToShortDateString()</td>
-                        <td>@log.Calories</td>
-                        <td>@log.Proteins</td>
-                        <td>@log.Fats</td>
-                        <td>@log.Carbs</td>
-                        <td>@log.Notes</td>
+                        <td>@entry.MealType</td>
+                        <td>@entry.FoodItemName</td>
+                        <td>@entry.Grams</td>
+                        <td>@entry.Calories</td>
+                        <td>@entry.Proteins</td>
+                        <td>@entry.Fats</td>
+                        <td>@entry.Carbs</td>
+                        <td>
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@entry.Id"
+                                  onsubmit="return confirm('Справді видалити запис?');">
+                                <button class="btn btn-sm btn-danger">🗑️</button>
+                            </form>
+                        </td>
                     </tr>
                 }
             </tbody>
         </table>
+
+        <div class="alert alert-info">
+            <strong>Сумарно:</strong>
+            Калорії: <strong>@Model.TotalCalories</strong> ккал |
+            Білки: <strong>@Model.TotalProteins</strong> г |
+            Жири: <strong>@Model.TotalFats</strong> г |
+            Вуглеводи: <strong>@Model.TotalCarbs</strong> г
+        </div>
     }
     else
     {
-        <p>Немає записів.</p>
+        <div class="alert alert-secondary">Немає записів на цю дату.</div>
     }
 </div>
 
