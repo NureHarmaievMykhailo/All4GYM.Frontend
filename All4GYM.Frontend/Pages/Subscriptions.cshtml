@@ -1,0 +1,41 @@
+@page
+@model SubscriptionsModel
+@{
+    ViewData["Title"] = "Підписки";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">🎟️ Оформлення підписки</h2>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div>@error.ErrorMessage</div>
+            }
+        </div>
+    }
+
+    <div class="row">
+        @foreach (var tier in new[] { "Basic", "Pro", "Premium" })
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card border-primary h-100 shadow-sm">
+                    <div class="card-header bg-primary text-white text-center fw-bold">
+                        @tier
+                    </div>
+                    <div class="card-body text-center">
+                        <p class="card-text">
+                            @Model.GetTierDescription(tier)
+                        </p>
+                        <form method="post" asp-page-handler="Subscribe">
+                            <input type="hidden" name="tier" value="@tier" />
+                            <button class="btn btn-success">Оформити</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

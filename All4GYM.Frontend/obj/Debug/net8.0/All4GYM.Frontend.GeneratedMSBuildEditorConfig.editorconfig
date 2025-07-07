@@ -62,6 +62,18 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/SubscriptionCancel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU3Vic2NyaXB0aW9uQ2FuY2VsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Subscriptions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU3Vic2NyaXB0aW9ucy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/SubscriptionSuccess.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU3Vic2NyaXB0aW9uU3VjY2Vzcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/TrainingLibrary.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVHJhaW5pbmdMaWJyYXJ5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 

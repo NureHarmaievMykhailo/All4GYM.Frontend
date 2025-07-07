@@ -5,7 +5,6 @@ builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddRazorPages();
 
-// 👇 Якщо треба буде використовувати [Authorize] в Razor Pages
 builder.Services.AddAuthentication("Cookies")
     .AddCookie("Cookies", options =>
     {
