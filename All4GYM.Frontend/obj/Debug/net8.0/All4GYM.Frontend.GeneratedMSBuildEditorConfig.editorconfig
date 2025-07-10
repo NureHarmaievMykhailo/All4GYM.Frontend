@@ -18,6 +18,10 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = /Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend
 build_property._RazorSourceGeneratorDebug = 
 
+[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/AccessDenied.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWNjZXNzRGVuaWVkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRXJyb3IuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 

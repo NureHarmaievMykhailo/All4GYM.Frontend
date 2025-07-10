@@ -89,8 +89,32 @@ public class MealLogModel : BasePageModel
     {
         if (UserId == null) return RedirectToPage("/Login");
 
+        var jwt = Request.Cookies["jwt"];
+        if (string.IsNullOrEmpty(jwt)) return RedirectToPage("/Login");
+
         var client = CreateClient();
 
+        try
+        {
+            // 🔐 Отримуємо актуальні дані профілю з бекенду
+            var profileResponse = await client.GetAsync("api/User/profile");
+            profileResponse.EnsureSuccessStatusCode();
+
+            var json = await profileResponse.Content.ReadAsStringAsync();
+            var profile = JsonDocument.Parse(json).RootElement;
+
+            var tierStr = profile.GetProperty("subscriptionTier").GetString();
+            if (!Enum.TryParse<SubscriptionTier>(tierStr, out var tier) || tier < SubscriptionTier.Premium)
+            {
+                return RedirectToPage("/AccessDenied");
+            }
+        }
+        catch
+        {
+            return RedirectToPage("/AccessDenied");
+        }
+
+        // 🍽️ Отримуємо MealLog
         var url = "api/MealLog";
         if (SelectedDate != null)
         {
@@ -109,6 +133,7 @@ public class MealLogModel : BasePageModel
                 : allEntries.Where(e => e.MealType == SelectedMealType).ToList();
         }
 
+        // 🥦 Підтягнути список продуктів
         var foodRes = await client.GetAsync("api/FoodItem");
         if (foodRes.IsSuccessStatusCode)
         {

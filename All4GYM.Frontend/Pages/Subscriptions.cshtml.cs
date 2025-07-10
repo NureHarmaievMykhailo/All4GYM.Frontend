@@ -63,6 +63,26 @@ public class SubscriptionsModel : BasePageModel
         ModelState.AddModelError(string.Empty, $"❌ Помилка оформлення підписки: {errorBody}");
         return Page();
     }
+    
+    public async Task<IActionResult> OnPostCancelSubscriptionAsync()
+    {
+        var jwt = Request.Cookies["jwt"];
+        var client = _httpClientFactory.CreateClient();
+        client.BaseAddress = new Uri("http://localhost:5092/");
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+        var response = await client.PostAsync("api/Subscription/cancel", null);
+        if (response.IsSuccessStatusCode)
+        {
+            TempData["SuccessMessage"] = "Підписку скасовано.";
+            return RedirectToPage();
+        }
+
+        var error = await response.Content.ReadAsStringAsync();
+        ModelState.AddModelError(string.Empty, $"❌ Помилка: {error}");
+        return Page();
+    }
+
 
     public class CheckoutResponse
     {

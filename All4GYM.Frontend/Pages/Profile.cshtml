@@ -1,5 +1,6 @@
 @page
-@model ProfileModel
+@using All4GYM.Frontend.Helpers
+@model All4GYM.Frontend.Pages.ProfileModel
 @{
     ViewData["Title"] = "Мій профіль";
 }
@@ -7,6 +8,7 @@
 <div class="container mt-5" style="max-width: 600px;">
     <h2>👤 Мій профіль</h2>
 
+    <!-- Основна форма профілю -->
     <form method="post">
         <div class="mb-3">
             <label asp-for="FullName" class="form-label">Імʼя</label>
@@ -37,6 +39,20 @@
             <div class="alert alert-danger mt-3">@Model.ErrorMessage</div>
         }
     </form>
+
+    <div class="alert alert-info mt-4">
+        <strong>📦 Дані з API:</strong><br/>
+        👁 HasActiveSubscription: <strong>@Model.HasActiveSubscription</strong><br/>
+        💎 Subscription Tier: <strong>@Model.SubscriptionTier</strong>
+    </div>
+    
+    @if (Model.HasActiveSubscription)
+    {
+        <form method="post" asp-page-handler="CancelSubscription" class="mt-4">
+            <button type="submit" class="btn btn-danger w-100">❌ Скасувати підписку</button>
+        </form>
+    }
+
 </div>
 
 @section Scripts {

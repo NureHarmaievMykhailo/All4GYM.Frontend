@@ -30,24 +30,14 @@ public class ProfileModel : BasePageModel
     public string? ErrorMessage { get; set; }
     public string? SuccessMessage { get; set; }
 
+    public bool HasActiveSubscription { get; set; }
+    public string SubscriptionTier { get; set; } = string.Empty;
+
     public async Task<IActionResult> OnGetAsync()
     {
-        Console.WriteLine("📥 GET: /Profile");
-
         var jwt = Request.Cookies["jwt"];
-        Console.WriteLine($"🔐 JWT from cookie: {jwt}");
-
-        if (string.IsNullOrEmpty(jwt))
-        {
-            Console.WriteLine("❌ JWT not found, redirecting to /Login");
+        if (string.IsNullOrEmpty(jwt) || UserId == null)
             return RedirectToPage("/Login");
-        }
-
-        if (UserId == null)
-        {
-            Console.WriteLine("❌ UserId not found in BasePageModel");
-            return RedirectToPage("/Login");
-        }
 
         try
         {
@@ -56,25 +46,20 @@ public class ProfileModel : BasePageModel
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
             var response = await client.GetAsync("api/User/profile");
-            Console.WriteLine($"🔁 Response status: {response.StatusCode}");
-
-            var json = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"📦 Response content: {json}");
-
             response.EnsureSuccessStatusCode();
 
+            var json = await response.Content.ReadAsStringAsync();
             var user = JsonDocument.Parse(json).RootElement;
 
             FullName = user.GetProperty("fullName").GetString()!;
             Email = user.GetProperty("email").GetString()!;
             Role = user.GetProperty("role").GetString()!;
-
-            Console.WriteLine($"✅ Profile loaded: {FullName}, {Email}, {Role}");
+            HasActiveSubscription = user.GetProperty("hasActiveSubscription").GetBoolean();
+            SubscriptionTier = user.GetProperty("subscriptionTier").GetString()!;
         }
         catch (Exception ex)
         {
             ErrorMessage = "Не вдалося завантажити профіль: " + ex.Message;
-            Console.WriteLine($"💥 Exception: {ex}");
         }
 
         return Page();
@@ -82,47 +67,24 @@ public class ProfileModel : BasePageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        Console.WriteLine("📥 POST: /Profile");
-
-        if (!ModelState.IsValid)
-        {
-            Console.WriteLine("❌ Model validation failed");
-            return Page();
-        }
-
-        var jwt = Request.Cookies["jwt"];
-        if (string.IsNullOrEmpty(jwt))
-        {
-            Console.WriteLine("❌ JWT not found, redirecting to /Login");
+        if (!ModelState.IsValid || string.IsNullOrEmpty(Request.Cookies["jwt"]) || UserId == null)
             return RedirectToPage("/Login");
-        }
-
-        if (UserId == null)
-        {
-            Console.WriteLine("❌ UserId is null, redirecting to /Login");
-            return RedirectToPage("/Login");
-        }
 
         try
         {
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri("http://localhost:5092/");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Request.Cookies["jwt"]);
 
             var payload = JsonSerializer.Serialize(new
             {
                 fullName = FullName,
                 email = Email,
-                password = "dummy" // як placeholder
+                password = "dummy"
             });
 
-            Console.WriteLine($"📤 Updating profile: {payload}");
-
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
-
             var response = await client.PutAsync("api/User/profile", content);
-            Console.WriteLine($"🔁 Update response: {response.StatusCode}");
-
             response.EnsureSuccessStatusCode();
 
             SuccessMessage = "✅ Профіль успішно оновлено!";
@@ -130,9 +92,47 @@ public class ProfileModel : BasePageModel
         catch (Exception ex)
         {
             ErrorMessage = "❌ Помилка при оновленні: " + ex.Message;
-            Console.WriteLine($"💥 Exception during update: {ex}");
         }
 
         return Page();
+    }
+
+    public async Task<IActionResult> OnPostCancelSubscriptionAsync()
+    {
+        var jwt = Request.Cookies["jwt"];
+        if (string.IsNullOrEmpty(jwt))
+            return RedirectToPage("/Login");
+
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri("http://localhost:5092/");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+            var response = await client.PostAsync("api/Subscription/cancel", null);
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+            var doc = JsonDocument.Parse(json).RootElement;
+
+            if (doc.TryGetProperty("token", out var newToken))
+            {
+                Response.Cookies.Append("jwt", newToken.GetString()!, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTimeOffset.UtcNow.AddDays(7)
+                });
+            }
+
+            SuccessMessage = "Підписку успішно скасовано.";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "❌ Помилка при скасуванні підписки: " + ex.Message;
+        }
+
+        return RedirectToPage();
     }
 }
