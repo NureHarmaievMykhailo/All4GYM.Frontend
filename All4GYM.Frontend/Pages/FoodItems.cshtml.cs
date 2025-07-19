@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using All4GYM.Frontend.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -42,6 +43,43 @@ public class FoodItemModel : PageModel
         [Required(ErrorMessage = "Вкажіть кількість вуглеводів")]
         [Range(0, 100, ErrorMessage = "Вуглеводів не може бути більше 100 г")]
         public float Carbs { get; set; }
+    }
+    
+    public async Task<IActionResult> OnGetAsync()
+    {
+        var client = _httpClientFactory.CreateClient();
+        client.BaseAddress = new Uri("http://localhost:5092/");
+        var jwt = Request.Cookies["jwt"];
+
+        if (string.IsNullOrEmpty(jwt))
+        {
+            Console.WriteLine("❌ JWT not found");
+            return RedirectToPage("/Login");
+        }
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+        var profileRes = await client.GetAsync("api/User/profile");
+        if (!profileRes.IsSuccessStatusCode)
+        {
+            Console.WriteLine("❌ Failed to fetch profile");
+            return RedirectToPage("/AccessDenied");
+        }
+
+        var profileJson = await profileRes.Content.ReadAsStringAsync();
+        using var profileDoc = JsonDocument.Parse(profileJson);
+        var root = profileDoc.RootElement;
+
+        var hasActiveSubscription = root.GetProperty("hasActiveSubscription").GetBoolean();
+        var tierStr = root.GetProperty("subscriptionTier").GetString();
+
+        if (!hasActiveSubscription || !Enum.TryParse<SubscriptionTier>(tierStr, out var tier) || tier < SubscriptionTier.Pro)
+        {
+            Console.WriteLine("🚫 Access denied: Pro tier required");
+            return RedirectToPage("/AccessDenied");
+        }
+
+        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync()

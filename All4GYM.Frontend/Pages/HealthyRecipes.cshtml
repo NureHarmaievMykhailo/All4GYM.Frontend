@@ -1,0 +1,49 @@
+@page
+@model All4GYM.Frontend.Pages.HealthyRecipesModel
+@{
+    ViewData["Title"] = "ПХ Рецепти";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">🥦 ПХ Рецепти</h2>
+
+    @if (Model.Recipes?.Count > 0)
+    {
+        <div class="row">
+            @foreach (var recipe in Model.Recipes)
+            {
+                <div class="card mb-3" style="max-width: 600px;">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="@recipe.ImageUrl" class="img-fluid rounded-start" alt="@recipe.Title" />
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h5 class="card-title">@recipe.Title</h5>
+                                <p class="card-text">@recipe.Description</p>
+                                <p class="card-text">
+                                    <strong>Калорії:</strong> @recipe.Calories ккал<br />
+                                    <strong>Білки:</strong> @recipe.Proteins г,
+                                    <strong>Жири:</strong> @recipe.Fats г,
+                                    <strong>Вуглеводи:</strong> @recipe.Carbs г
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            Рецепти ще не додано.
+        </div>
+    }
+    
+    <a asp-page="/MealLog" class="btn btn-secondary ms-2">⬅️ Назад</a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

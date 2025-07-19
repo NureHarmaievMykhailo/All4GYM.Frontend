@@ -17,11 +17,11 @@
             <label class="form-label">Дата</label>
             <input type="date" name="SelectedDate" value="@Model.SelectedDate?.ToString("yyyy-MM-dd")" class="form-control" />
         </div>
-        <div class="mb-4 d-flex align-items-end">
-            <a asp-page="/FoodItems" class="btn btn-outline-success">
-                ➕ Додати новий продукт
-            </a>
+        <div class="d-flex gap-3 mb-4">
+            <a class="btn btn-primary" asp-page="/FoodItems">➕Додати новий продукт</a>
+            <a class="btn btn-outline-success" href="/HealthyRecipes">🥗ПХ Рецепти</a>
         </div>
+
         <div class="col-md-4">
             <label class="form-label">Тип прийому їжі</label>
             <select name="SelectedMealType" class="form-select">

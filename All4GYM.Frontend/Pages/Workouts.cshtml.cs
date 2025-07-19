@@ -63,7 +63,8 @@ public class WorkoutsModel : BasePageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        if (UserId == null) return RedirectToPage("/Login");
+        if (UserId == null)
+            return RedirectToPage("/Login");
 
         var client = _httpClientFactory.CreateClient();
         client.BaseAddress = new Uri("http://localhost:5092/");
@@ -72,6 +73,22 @@ public class WorkoutsModel : BasePageModel
 
         try
         {
+            var profileResponse = await client.GetAsync("api/User/profile");
+            if (!profileResponse.IsSuccessStatusCode)
+                return RedirectToPage("/AccessDenied");
+
+            var profileJson = await profileResponse.Content.ReadAsStringAsync();
+            using var profileDoc = JsonDocument.Parse(profileJson);
+            var root = profileDoc.RootElement;
+
+            var hasActiveSubscription = root.GetProperty("hasActiveSubscription").GetBoolean();
+            var tierStr = root.GetProperty("subscriptionTier").GetString();
+
+            if (!hasActiveSubscription || !Enum.TryParse<SubscriptionTier>(tierStr, out var tier) || tier < SubscriptionTier.Basic)
+            {
+                return RedirectToPage("/AccessDenied");
+            }
+
             var response = await client.GetAsync("api/Workout");
             if (response.IsSuccessStatusCode)
             {
@@ -93,6 +110,7 @@ public class WorkoutsModel : BasePageModel
 
         return Page();
     }
+
 
     public async Task<IActionResult> OnPostAsync()
     {

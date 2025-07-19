@@ -61,35 +61,63 @@ public class GroupSessionsModel : BasePageModel
     }
 
     public async Task<IActionResult> OnGetAsync()
+{
+    var client = _httpClientFactory.CreateClient();
+    client.BaseAddress = new Uri("http://localhost:5092/");
+    var jwt = Request.Cookies["jwt"];
+    
+    if (string.IsNullOrEmpty(jwt))
     {
-        var client = _httpClientFactory.CreateClient();
-        client.BaseAddress = new Uri("http://localhost:5092/");
-        var jwt = Request.Cookies["jwt"];
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
-        // всі сесії
-        var res = await client.GetAsync("api/GroupSession");
-        var json = await res.Content.ReadAsStringAsync();
-        Console.WriteLine($"📥 GET /GroupSession → {res.StatusCode}");
-        Console.WriteLine($"📦 JSON Response: {json}");
-
-        if (res.IsSuccessStatusCode)
-        {
-            Sessions = JsonSerializer.Deserialize<List<SessionItem>>(json)!;
-            Console.WriteLine($"✅ Parsed GroupSessions: {Sessions.Count}");
-        }
-
-        // записи користувача
-        var bookingsRes = await client.GetAsync("api/Booking");
-        if (bookingsRes.IsSuccessStatusCode)
-        {
-            var bookingsJson = await bookingsRes.Content.ReadAsStringAsync();
-            var bookings = JsonSerializer.Deserialize<List<BookingItem>>(bookingsJson)!;
-            UserSessionIds = bookings.Select(b => b.GroupSessionId).ToList();
-        }
-
-        return Page();
+        Console.WriteLine("❌ JWT not found");
+        return RedirectToPage("/Login");
     }
+
+    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+    // 🔐 Перевірка рівня підписки
+    var profileRes = await client.GetAsync("api/User/profile");
+    if (!profileRes.IsSuccessStatusCode)
+    {
+        Console.WriteLine("❌ Failed to fetch profile");
+        return RedirectToPage("/AccessDenied");
+    }
+
+    var profileJson = await profileRes.Content.ReadAsStringAsync();
+    using var profileDoc = JsonDocument.Parse(profileJson);
+    var root = profileDoc.RootElement;
+
+    var hasActiveSubscription = root.GetProperty("hasActiveSubscription").GetBoolean();
+    var tierStr = root.GetProperty("subscriptionTier").GetString();
+
+    if (!hasActiveSubscription || !Enum.TryParse<SubscriptionTier>(tierStr, out var tier) || tier < SubscriptionTier.Pro)
+    {
+        Console.WriteLine("🚫 Access denied: Pro tier required");
+        return RedirectToPage("/AccessDenied");
+    }
+
+    // 🔽 Отримання всіх сесій
+    var res = await client.GetAsync("api/GroupSession");
+    var json = await res.Content.ReadAsStringAsync();
+    Console.WriteLine($"📥 GET /GroupSession → {res.StatusCode}");
+    Console.WriteLine($"📦 JSON Response: {json}");
+
+    if (res.IsSuccessStatusCode)
+    {
+        Sessions = JsonSerializer.Deserialize<List<SessionItem>>(json)!;
+        Console.WriteLine($"✅ Parsed GroupSessions: {Sessions.Count}");
+    }
+
+    // 🔽 Записи користувача
+    var bookingsRes = await client.GetAsync("api/Booking");
+    if (bookingsRes.IsSuccessStatusCode)
+    {
+        var bookingsJson = await bookingsRes.Content.ReadAsStringAsync();
+        var bookings = JsonSerializer.Deserialize<List<BookingItem>>(bookingsJson)!;
+        UserSessionIds = bookings.Select(b => b.GroupSessionId).ToList();
+    }
+
+    return Page();
+}
 
     [BindProperty(SupportsGet = true, Name = "sessionId")]
     public int SessionId { get; set; }

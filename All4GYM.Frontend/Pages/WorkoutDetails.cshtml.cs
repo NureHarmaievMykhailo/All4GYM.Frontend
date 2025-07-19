@@ -77,48 +77,72 @@ public class WorkoutDetailsModel : BasePageModel
     }
 
     public async Task<IActionResult> OnGetAsync()
+{
+    if (UserId == null) return RedirectToPage("/Login");
+
+    var client = _httpClientFactory.CreateClient();
+    client.BaseAddress = new Uri("http://localhost:5092/");
+    var jwt = Request.Cookies["jwt"];
+    if (string.IsNullOrEmpty(jwt))
     {
-        if (UserId == null) return RedirectToPage("/Login");
-
-        var client = _httpClientFactory.CreateClient();
-        client.BaseAddress = new Uri("http://localhost:5092/");
-        var jwt = Request.Cookies["jwt"];
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
-        // Деталі тренування
-        var workoutRes = await client.GetAsync($"api/Workout/{Id}");
-        if (workoutRes.IsSuccessStatusCode)
-        {
-            var json = await workoutRes.Content.ReadAsStringAsync();
-            var workout = JsonDocument.Parse(json).RootElement;
-
-            if (workout.TryGetProperty("date", out var dateProp) && dateProp.ValueKind == JsonValueKind.String)
-            {
-                if (DateTime.TryParse(dateProp.GetString(), out var parsedDate))
-                    WorkoutDate = parsedDate;
-            }
-
-            WorkoutNotes = workout.GetProperty("notes").GetString();
-        }
-
-        // Вправи в цьому тренуванні
-        var exercisesRes = await client.GetAsync($"api/workouts/{Id}/exercises");
-        if (exercisesRes.IsSuccessStatusCode)
-        {
-            var json = await exercisesRes.Content.ReadAsStringAsync();
-            Exercises = JsonSerializer.Deserialize<List<ExerciseItem>>(json)!;
-        }
-
-        // Усі доступні вправи
-        var optionsRes = await client.GetAsync("api/Exercise");
-        if (optionsRes.IsSuccessStatusCode)
-        {
-            var json = await optionsRes.Content.ReadAsStringAsync();
-            AvailableExercises = JsonSerializer.Deserialize<List<ExerciseOption>>(json)!;
-        }
-
-        return Page();
+        Console.WriteLine("❌ JWT not found");
+        return RedirectToPage("/Login");
     }
+
+    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+    
+    var profileRes = await client.GetAsync("api/User/profile");
+    if (!profileRes.IsSuccessStatusCode)
+    {
+        Console.WriteLine("❌ Failed to fetch profile");
+        return RedirectToPage("/AccessDenied");
+    }
+
+    var profileJson = await profileRes.Content.ReadAsStringAsync();
+    using var profileDoc = JsonDocument.Parse(profileJson);
+    var root = profileDoc.RootElement;
+
+    var hasActiveSubscription = root.GetProperty("hasActiveSubscription").GetBoolean();
+    var tierStr = root.GetProperty("subscriptionTier").GetString();
+
+    if (!hasActiveSubscription || !Enum.TryParse<SubscriptionTier>(tierStr, out var tier) || tier < SubscriptionTier.Basic)
+    {
+        Console.WriteLine("🚫 Access denied: insufficient subscription tier");
+        return RedirectToPage("/AccessDenied");
+    }
+    
+    var workoutRes = await client.GetAsync($"api/Workout/{Id}");
+    if (workoutRes.IsSuccessStatusCode)
+    {
+        var json = await workoutRes.Content.ReadAsStringAsync();
+        var workout = JsonDocument.Parse(json).RootElement;
+
+        if (workout.TryGetProperty("date", out var dateProp) && dateProp.ValueKind == JsonValueKind.String)
+        {
+            if (DateTime.TryParse(dateProp.GetString(), out var parsedDate))
+                WorkoutDate = parsedDate;
+        }
+
+        WorkoutNotes = workout.GetProperty("notes").GetString();
+    }
+
+    var exercisesRes = await client.GetAsync($"api/workouts/{Id}/exercises");
+    if (exercisesRes.IsSuccessStatusCode)
+    {
+        var json = await exercisesRes.Content.ReadAsStringAsync();
+        Exercises = JsonSerializer.Deserialize<List<ExerciseItem>>(json)!;
+    }
+
+    // 🔽 Усі доступні вправи
+    var optionsRes = await client.GetAsync("api/Exercise");
+    if (optionsRes.IsSuccessStatusCode)
+    {
+        var json = await optionsRes.Content.ReadAsStringAsync();
+        AvailableExercises = JsonSerializer.Deserialize<List<ExerciseOption>>(json)!;
+    }
+
+    return Page();
+}
 
     public async Task<IActionResult> OnPostAsync()
     {
