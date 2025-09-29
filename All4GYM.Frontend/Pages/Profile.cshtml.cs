@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using All4GYM.Frontend.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -17,21 +18,40 @@ public class ProfileModel : BasePageModel
         _httpClientFactory = httpClientFactory;
     }
 
-    [BindProperty]
-    [Required]
-    public string FullName { get; set; } = string.Empty;
+    // DTO для десеріалізації JSON з API
+    private class UserProfileDto
+    {
+        [JsonPropertyName("fullName")] public string FullName { get; set; } = string.Empty;
+        [JsonPropertyName("email")] public string Email { get; set; } = string.Empty;
+        [JsonPropertyName("role")] public string Role { get; set; } = string.Empty;
+        [JsonPropertyName("age")] public int? Age { get; set; }
+        [JsonPropertyName("heightCm")] public double? HeightCm { get; set; }
+        [JsonPropertyName("weightKg")] public double? WeightKg { get; set; }
+        [JsonPropertyName("gender")] public string Gender { get; set; } = string.Empty;
+        [JsonPropertyName("goal")] public string Goal { get; set; } = string.Empty;
+        [JsonPropertyName("preferredWorkoutDays")] public string PreferredWorkoutDays { get; set; } = string.Empty;
+        [JsonPropertyName("gymPassCode")] public string GymPassCode { get; set; } = string.Empty;
+        [JsonPropertyName("hasActiveSubscription")] public bool HasActiveSubscription { get; set; }
+        [JsonPropertyName("subscriptionTier")] public string SubscriptionTier { get; set; } = string.Empty;
+    }
 
-    [BindProperty]
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; } = string.Empty;
+    // 🔹 Властивості, які будуть зв'язані з Razor формою
+    [BindProperty, Required] public string FullName { get; set; } = string.Empty;
+    [BindProperty, Required, EmailAddress] public string Email { get; set; } = string.Empty;
+    [BindProperty] public int Age { get; set; }
+    [BindProperty] public double HeightCm { get; set; }
+    [BindProperty] public double WeightKg { get; set; }
+    [BindProperty] public string Gender { get; set; } = string.Empty;
+    [BindProperty] public string Goal { get; set; } = string.Empty;
+    [BindProperty] public string PreferredWorkoutDays { get; set; } = string.Empty;
+    [BindProperty] public string GymPassCode { get; set; } = string.Empty;
 
     public string Role { get; set; } = string.Empty;
-    public string? ErrorMessage { get; set; }
-    public string? SuccessMessage { get; set; }
-
     public bool HasActiveSubscription { get; set; }
     public string SubscriptionTier { get; set; } = string.Empty;
+
+    public string? ErrorMessage { get; set; }
+    public string? SuccessMessage { get; set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -49,13 +69,27 @@ public class ProfileModel : BasePageModel
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync();
-            var user = JsonDocument.Parse(json).RootElement;
 
-            FullName = user.GetProperty("fullName").GetString()!;
-            Email = user.GetProperty("email").GetString()!;
-            Role = user.GetProperty("role").GetString()!;
-            HasActiveSubscription = user.GetProperty("hasActiveSubscription").GetBoolean();
-            SubscriptionTier = user.GetProperty("subscriptionTier").GetString()!;
+            var user = JsonSerializer.Deserialize<UserProfileDto>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (user != null)
+            {
+                FullName = user.FullName;
+                Email = user.Email;
+                Role = user.Role;
+                Age = user.Age ?? 0;
+                HeightCm = user.HeightCm ?? 0;
+                WeightKg = user.WeightKg ?? 0;
+                Gender = user.Gender;
+                Goal = user.Goal;
+                PreferredWorkoutDays = user.PreferredWorkoutDays;
+                GymPassCode = user.GymPassCode;
+                HasActiveSubscription = user.HasActiveSubscription;
+                SubscriptionTier = user.SubscriptionTier;
+            }
         }
         catch (Exception ex)
         {
@@ -80,7 +114,13 @@ public class ProfileModel : BasePageModel
             {
                 fullName = FullName,
                 email = Email,
-                password = "dummy"
+                age = Age,
+                heightCm = HeightCm,
+                weightKg = WeightKg,
+                gender = Gender,
+                goal = Goal,
+                preferredWorkoutDays = PreferredWorkoutDays,
+                gymPassCode = GymPassCode
             });
 
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
@@ -117,13 +157,14 @@ public class ProfileModel : BasePageModel
 
             if (doc.TryGetProperty("token", out var newToken))
             {
-                Response.Cookies.Append("jwt", newToken.GetString()!, new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = DateTimeOffset.UtcNow.AddDays(7)
-                });
+                Response.Cookies.Append("jwt", newToken.GetString()!,
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTimeOffset.UtcNow.AddDays(7)
+                    });
             }
 
             SuccessMessage = "Підписку успішно скасовано.";

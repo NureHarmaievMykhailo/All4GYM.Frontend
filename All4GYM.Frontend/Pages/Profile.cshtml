@@ -5,20 +5,20 @@
     ViewData["Title"] = "Мій профіль";
 }
 
-<div class="container mt-5" style="max-width: 600px;">
+<div class="container mt-5" style="max-width: 700px;">
     <h2>👤 Мій профіль</h2>
 
-    <!-- Основна форма профілю -->
-    <form method="post">
+    <form method="post" id="profileForm">
+        <!-- Основна інформація -->
         <div class="mb-3">
             <label asp-for="FullName" class="form-label">Імʼя</label>
-            <input asp-for="FullName" class="form-control" />
+            <input asp-for="FullName" class="form-control" readonly />
             <span asp-validation-for="FullName" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
             <label asp-for="Email" class="form-label">Email</label>
-            <input asp-for="Email" class="form-control" />
+            <input asp-for="Email" class="form-control" readonly />
             <span asp-validation-for="Email" class="text-danger"></span>
         </div>
 
@@ -27,13 +27,71 @@
             <input value="@Model.Role" class="form-control" disabled />
         </div>
 
-        <button type="submit" class="btn btn-primary w-100">💾 Зберегти</button>
+        <hr />
+        <h5 class="mt-4">🏋️‍♀️ Фітнес-дані</h5>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label asp-for="Age" class="form-label">Вік</label>
+                <input asp-for="Age" class="form-control" type="number" min="0" readonly data-editable="true" />
+                <span asp-validation-for="Age" class="text-danger"></span>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="WeightKg" class="form-label">Вага (кг)</label>
+                <input asp-for="WeightKg" class="form-control" type="number" step="0.1" min="0" readonly data-editable="true" />
+                <span asp-validation-for="WeightKg" class="text-danger"></span>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="HeightCm" class="form-label">Зріст (см)</label>
+                <input asp-for="HeightCm" class="form-control" type="number" step="0.1" min="0" readonly data-editable="true" />
+                <span asp-validation-for="HeightCm" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="Gender" class="form-label">Стать</label>
+                <select asp-for="Gender" class="form-select" disabled data-editable="true">
+                    <option value="">Оберіть</option>
+                    <option value="Чоловіча">Чоловіча</option>
+                    <option value="Жіноча">Жіноча</option>
+                    <option value="Інша">Інша</option>
+                </select>
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="Goal" class="form-label">Мета</label>
+                <select asp-for="Goal" class="form-select" disabled data-editable="true">
+                    <option value="">Оберіть</option>
+                    <option value="Схуднення">Схуднення</option>
+                    <option value="Набір маси">Набір маси</option>
+                    <option value="Підтримка форми">Підтримка форми</option>
+                </select>
+                <span asp-validation-for="Goal" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PreferredWorkoutDays" class="form-label">Бажані дні тренувань</label>
+            <input asp-for="PreferredWorkoutDays" class="form-control" readonly data-editable="true" placeholder="Наприклад: Пн, Ср, Пт" />
+            <span asp-validation-for="PreferredWorkoutDays" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="GymPassCode" class="form-label">Код абонементу</label>
+            <input asp-for="GymPassCode" class="form-control" readonly data-editable="true" />
+            <span asp-validation-for="GymPassCode" class="text-danger"></span>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+            <button type="button" id="editBtn" class="btn btn-outline-primary">✏️ Редагувати</button>
+            <button type="submit" id="saveBtn" class="btn btn-primary" style="display:none;">💾 Зберегти</button>
+        </div>
 
         @if (!string.IsNullOrEmpty(Model.SuccessMessage))
         {
             <div class="alert alert-success mt-3">@Model.SuccessMessage</div>
         }
-
         @if (!string.IsNullOrEmpty(Model.ErrorMessage))
         {
             <div class="alert alert-danger mt-3">@Model.ErrorMessage</div>
@@ -41,20 +99,32 @@
     </form>
 
     <div class="alert alert-info mt-4">
-        <strong>📦 Дані з API:</strong><br/>
-        👁 HasActiveSubscription: <strong>@Model.HasActiveSubscription</strong><br/>
+        <strong>📦 Дані з API:</strong><br />
+        👁 HasActiveSubscription: <strong>@Model.HasActiveSubscription</strong><br />
         💎 Subscription Tier: <strong>@Model.SubscriptionTier</strong>
     </div>
-    
+
     @if (Model.HasActiveSubscription)
     {
         <form method="post" asp-page-handler="CancelSubscription" class="mt-4">
             <button type="submit" class="btn btn-danger w-100">❌ Скасувати підписку</button>
         </form>
     }
-
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('editBtn').addEventListener('click', () => {
+            // Дозволяємо редагувати тільки ті поля, що мають data-editable="true"
+            document.querySelectorAll('#profileForm [data-editable="true"]').forEach(el => {
+                el.removeAttribute('readonly');
+                el.removeAttribute('disabled');
+            });
+
+            // Перемикаємо кнопки
+            document.getElementById('editBtn').style.display = 'none';
+            document.getElementById('saveBtn').style.display = 'inline-block';
+        });
+    </script>
 }

@@ -1,0 +1,90 @@
+@page
+@model All4GYM.Frontend.Pages.ProgressLogModel
+@using Microsoft.AspNetCore.Authorization
+@{
+    ViewData["Title"] = "Прогрес";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">📈 Прогрес</h2>
+
+    <form method="post" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <label class="form-label">Дата</label>
+            <input type="date" name="Date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Вага (кг)</label>
+            <input type="number" name="Weight" class="form-control" step="0.1" required />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">% Жиру</label>
+            <input type="number" name="BodyFat" class="form-control" step="0.1" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">М'язова маса (кг)</label>
+            <input type="number" name="MuscleMass" class="form-control" step="0.1" />
+        </div>
+        <div class="col-12 text-end">
+            <button type="submit" class="btn btn-success">➕ Додати запис</button>
+        </div>
+    </form>
+
+    <hr />
+
+    <h4 class="mb-3">📊 Динаміка ваги</h4>
+    <canvas id="weightChart" height="100"></canvas>
+
+    <h4 class="mt-5">🗂 Історія записів</h4>
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Вага (кг)</th>
+                <th>% Жиру</th>
+                <th>М'язова маса (кг)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in Model.Logs.OrderByDescending(l => l.Date))
+            {
+                <tr>
+                    <td>@log.Date.ToString("dd.MM.yyyy")</td>
+                    <td>@log.Weight</td>
+                    <td>@(log.BodyFat?.ToString() ?? "-")</td>
+                    <td>@(log.MuscleMass?.ToString() ?? "-")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const labels = @Html.Raw(Json.Serialize(Model.Logs.Select(l => l.Date.ToString("dd.MM"))));
+        const weights = @Html.Raw(Json.Serialize(Model.Logs.Select(l => l.Weight)));
+
+        const ctx = document.getElementById('weightChart');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Вага (кг)',
+                    data: weights,
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    </script>
+}
