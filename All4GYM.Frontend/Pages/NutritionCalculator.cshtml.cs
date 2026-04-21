@@ -70,8 +70,7 @@ public class NutritionCalculatorModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        var client = _httpClientFactory.CreateClient();
-        client.BaseAddress = new Uri("http://localhost:5092/");
+        var client = _httpClientFactory.CreateClient("ApiClient");
         var jwt = Request.Cookies["jwt"];
 
         if (string.IsNullOrEmpty(jwt))
@@ -123,8 +122,7 @@ public class NutritionCalculatorModel : PageModel
             return Page();
         }
 
-        var client = _httpClientFactory.CreateClient();
-        client.BaseAddress = new Uri("http://localhost:5092/");
+        var client = _httpClientFactory.CreateClient("ApiClient");
         var jwt = Request.Cookies["jwt"];
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 

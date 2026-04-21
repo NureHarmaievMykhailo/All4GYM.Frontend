@@ -8,6 +8,13 @@ namespace All4GYM.Frontend.Pages;
 
 public class LoginModel : PageModel
 {
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public LoginModel(IHttpClientFactory httpClientFactory)
+    {
+        _httpClientFactory = httpClientFactory;
+    }
+
     [BindProperty]
     [Required(ErrorMessage = "Email обовʼязковий")]
     [EmailAddress(ErrorMessage = "Невірний формат email")]
@@ -22,7 +29,6 @@ public class LoginModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        // 🔎 Перевірка валідації
         if (!ModelState.IsValid)
         {
             Console.WriteLine("❌ Model validation failed");
@@ -31,8 +37,8 @@ public class LoginModel : PageModel
 
         try
         {
-            using var http = new HttpClient();
-            http.BaseAddress = new Uri("http://localhost:5092/");
+            // ✅ ИСПОЛЬЗУЕМ НАШ NAMED CLIENT
+            var http = _httpClientFactory.CreateClient("ApiClient");
 
             var payload = new
             {
@@ -54,15 +60,18 @@ public class LoginModel : PageModel
 
             if (response.IsSuccessStatusCode)
             {
-                var token = JsonDocument.Parse(responseBody).RootElement.GetProperty("token").GetString();
+                var token = JsonDocument.Parse(responseBody)
+                    .RootElement
+                    .GetProperty("token")
+                    .GetString();
 
                 Console.WriteLine("✅ Login successful. Token received.");
 
                 Response.Cookies.Append("jwt", token!, new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = false, // для dev
-                    SameSite = SameSiteMode.Strict,
+                    Secure = true, // 🔥 ВАЖНО для Railway (HTTPS)
+                    SameSite = SameSiteMode.None, // 🔥 критично для cross-site
                     Expires = DateTimeOffset.UtcNow.AddDays(7)
                 });
 

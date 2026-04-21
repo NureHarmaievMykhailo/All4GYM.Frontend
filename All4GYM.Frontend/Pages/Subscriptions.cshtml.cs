@@ -34,8 +34,7 @@ public class SubscriptionsModel : BasePageModel
             return Page();
         }
 
-        var client = _httpClientFactory.CreateClient();
-        client.BaseAddress = new Uri("http://localhost:5092/"); // Замінити при деплої
+        var client = _httpClientFactory.CreateClient("ApiClient");
         var jwt = Request.Cookies["jwt"];
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
@@ -67,8 +66,7 @@ public class SubscriptionsModel : BasePageModel
     public async Task<IActionResult> OnPostCancelSubscriptionAsync()
     {
         var jwt = Request.Cookies["jwt"];
-        var client = _httpClientFactory.CreateClient();
-        client.BaseAddress = new Uri("http://localhost:5092/");
+        var client = _httpClientFactory.CreateClient("ApiClient");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
         var response = await client.PostAsync("api/Subscription/cancel", null);

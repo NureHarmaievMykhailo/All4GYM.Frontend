@@ -62,8 +62,7 @@ public class GroupSessionsModel : BasePageModel
 
     public async Task<IActionResult> OnGetAsync()
 {
-    var client = _httpClientFactory.CreateClient();
-    client.BaseAddress = new Uri("http://localhost:5092/");
+    var client = _httpClientFactory.CreateClient("ApiClient");
     var jwt = Request.Cookies["jwt"];
     
     if (string.IsNullOrEmpty(jwt))
@@ -74,7 +73,7 @@ public class GroupSessionsModel : BasePageModel
 
     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
-    // 🔐 Перевірка рівня підписки
+    // Перевірка рівня підписки
     var profileRes = await client.GetAsync("api/User/profile");
     if (!profileRes.IsSuccessStatusCode)
     {
@@ -95,7 +94,7 @@ public class GroupSessionsModel : BasePageModel
         return RedirectToPage("/AccessDenied");
     }
 
-    // 🔽 Отримання всіх сесій
+    // Отримання всіх сесій
     var res = await client.GetAsync("api/GroupSession");
     var json = await res.Content.ReadAsStringAsync();
     Console.WriteLine($"📥 GET /GroupSession → {res.StatusCode}");
@@ -107,7 +106,7 @@ public class GroupSessionsModel : BasePageModel
         Console.WriteLine($"✅ Parsed GroupSessions: {Sessions.Count}");
     }
 
-    // 🔽 Записи користувача
+    // Записи користувача
     var bookingsRes = await client.GetAsync("api/Booking");
     if (bookingsRes.IsSuccessStatusCode)
     {
@@ -129,8 +128,7 @@ public class GroupSessionsModel : BasePageModel
 
         Console.WriteLine($"📤 Booking session ID: {SessionId}");
 
-        var client = _httpClientFactory.CreateClient();
-        client.BaseAddress = new Uri("http://localhost:5092/");
+        var client = _httpClientFactory.CreateClient("ApiClient");
         var jwt = Request.Cookies["jwt"];
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
@@ -156,8 +154,7 @@ public class GroupSessionsModel : BasePageModel
 
         Console.WriteLine($"📤 Cancel booking for session ID: {sessionId}");
 
-        var client = _httpClientFactory.CreateClient();
-        client.BaseAddress = new Uri("http://localhost:5092/");
+        var client = _httpClientFactory.CreateClient("ApiClient");
         var jwt = Request.Cookies["jwt"];
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 

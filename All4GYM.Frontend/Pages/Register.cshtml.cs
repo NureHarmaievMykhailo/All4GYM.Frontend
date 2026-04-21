@@ -8,6 +8,13 @@ namespace All4GYM.Frontend.Pages;
 
 public class RegisterModel : PageModel
 {
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public RegisterModel(IHttpClientFactory httpClientFactory)
+    {
+        _httpClientFactory = httpClientFactory;
+    }
+
     [BindProperty]
     [Required(ErrorMessage = "Імʼя є обовʼязковим")]
     public string FullName { get; set; } = "";
@@ -26,20 +33,23 @@ public class RegisterModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (!ModelState.IsValid) return Page();
+        if (!ModelState.IsValid)
+            return Page();
+        
+        var http = _httpClientFactory.CreateClient("ApiClient");
 
-        using var http = new HttpClient();
-        http.BaseAddress = new Uri("http://localhost:5092/");
+        var payload = new
+        {
+            fullName = FullName,
+            email = Email,
+            password = Password
+        };
 
         var content = new StringContent(
-            JsonSerializer.Serialize(new
-            {
-                fullName = FullName,
-                email = Email,
-                password = Password
-            }),
+            JsonSerializer.Serialize(payload),
             Encoding.UTF8,
-            "application/json");
+            "application/json"
+        );
 
         var response = await http.PostAsync("api/User/register", content);
 
@@ -49,6 +59,7 @@ public class RegisterModel : PageModel
         }
 
         var errorJson = await response.Content.ReadAsStringAsync();
+
         try
         {
             var error = JsonDocument.Parse(errorJson);

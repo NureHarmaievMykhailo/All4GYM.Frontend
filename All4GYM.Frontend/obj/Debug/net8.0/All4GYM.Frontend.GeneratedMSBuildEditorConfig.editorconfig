@@ -9,103 +9,105 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = All4GYM.Frontend
 build_property.RootNamespace = All4GYM.Frontend
-build_property.ProjectDir = /Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/
+build_property.ProjectDir = C:\Users\sayan\RiderProjects\All4GYM.Frontend\All4GYM.Frontend\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = /Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend
+build_property.MSBuildProjectDirectory = C:\Users\sayan\RiderProjects\All4GYM.Frontend\All4GYM.Frontend
 build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/AccessDenied.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWNjZXNzRGVuaWVkLmNzaHRtbA==
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/AccessDenied.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjZXNzRGVuaWVkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Error.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRXJyb3IuY3NodG1s
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/FoodItems.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRm9vZEl0ZW1zLmNzaHRtbA==
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/FoodItems.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRm9vZEl0ZW1zLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/GroupSessions.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvR3JvdXBTZXNzaW9ucy5jc2h0bWw=
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/GroupSessions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcR3JvdXBTZXNzaW9ucy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/HealthyRecipes.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSGVhbHRoeVJlY2lwZXMuY3NodG1s
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/HealthyRecipes.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSGVhbHRoeVJlY2lwZXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSW5kZXguY3NodG1s
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Login.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTG9naW4uY3NodG1s
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Logout.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTG9nb3V0LmNzaHRtbA==
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Logout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9nb3V0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/MealLog.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTWVhbExvZy5jc2h0bWw=
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/MealLog.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWVhbExvZy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/NutritionCalculator.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTnV0cml0aW9uQ2FsY3VsYXRvci5jc2h0bWw=
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/NutritionCalculator.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnV0cml0aW9uQ2FsY3VsYXRvci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Profile.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvUHJvZmlsZS5jc2h0bWw=
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Profile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZmlsZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/ProgressLog.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvUHJvZ3Jlc3NMb2cuY3NodG1s
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/ProgressLog.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZ3Jlc3NMb2cuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Register.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvUmVnaXN0ZXIuY3NodG1s
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVnaXN0ZXIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Shared/_ValidationScriptsPartial.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/SubscriptionCancel.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU3Vic2NyaXB0aW9uQ2FuY2VsLmNzaHRtbA==
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/SubscriptionCancel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU3Vic2NyaXB0aW9uQ2FuY2VsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Subscriptions.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU3Vic2NyaXB0aW9ucy5jc2h0bWw=
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Subscriptions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU3Vic2NyaXB0aW9ucy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/SubscriptionSuccess.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU3Vic2NyaXB0aW9uU3VjY2Vzcy5jc2h0bWw=
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/SubscriptionSuccess.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU3Vic2NyaXB0aW9uU3VjY2Vzcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/TrainingLibrary.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVHJhaW5pbmdMaWJyYXJ5LmNzaHRtbA==
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/TrainingLibrary.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVHJhaW5pbmdMaWJyYXJ5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/WorkoutDetails.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvV29ya291dERldGFpbHMuY3NodG1s
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/WorkoutDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcV29ya291dERldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Workouts.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvV29ya291dHMuY3NodG1s
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Workouts.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcV29ya291dHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/_ViewImports.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/_ViewStart.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvX1ZpZXdTdGFydC5jc2h0bWw=
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/evelinakibalkina/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Shared/_Layout.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2hhcmVkL19MYXlvdXQuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = b-vczanhlzjh
+[C:/Users/sayan/RiderProjects/All4GYM.Frontend/All4GYM.Frontend/Pages/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-1fbbk8am7u

@@ -80,8 +80,7 @@ public class WorkoutDetailsModel : BasePageModel
 {
     if (UserId == null) return RedirectToPage("/Login");
 
-    var client = _httpClientFactory.CreateClient();
-    client.BaseAddress = new Uri("http://localhost:5092/");
+    var client = _httpClientFactory.CreateClient("ApiClient");
     var jwt = Request.Cookies["jwt"];
     if (string.IsNullOrEmpty(jwt))
     {
@@ -151,8 +150,7 @@ public class WorkoutDetailsModel : BasePageModel
 
         NewExercise.WorkoutId = Id;
 
-        var client = _httpClientFactory.CreateClient();
-        client.BaseAddress = new Uri("http://localhost:5092/");
+        var client = _httpClientFactory.CreateClient("ApiClient");
         var jwt = Request.Cookies["jwt"];
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
@@ -169,8 +167,7 @@ public class WorkoutDetailsModel : BasePageModel
     {
         if (UserId == null) return RedirectToPage("/Login");
 
-        var client = _httpClientFactory.CreateClient();
-        client.BaseAddress = new Uri("http://localhost:5092/");
+        var client = _httpClientFactory.CreateClient("ApiClient");
         var jwt = Request.Cookies["jwt"];
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
