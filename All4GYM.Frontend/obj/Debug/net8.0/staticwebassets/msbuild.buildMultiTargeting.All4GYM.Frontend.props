@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\All4GYM.Frontend.props" />
-</Project>
