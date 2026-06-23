@@ -119,8 +119,10 @@ document.getElementById('btnAnalyze').addEventListener('click', async () => {
         });
 
         if (!response.ok) {
-            const err = await response.text();
-            throw new Error(err || 'Generation failed');
+            const text = await response.text();
+            console.log("ERROR RESPONSE:", text);
+            alert(text);
+            throw new Error(text);
         }
 
         const data = await response.json();
