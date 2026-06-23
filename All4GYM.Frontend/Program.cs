@@ -16,11 +16,6 @@ builder.Services.AddHttpClient("ApiClient", client =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddRazorPages();
 
-builder.Services.AddAntiforgery(options =>
-{
-    options.HeaderName = "X-XSRF-TOKEN";
-});
-
 // Cookie authentication
 builder.Services.AddAuthentication("Cookies")
     .AddCookie("Cookies", options =>
