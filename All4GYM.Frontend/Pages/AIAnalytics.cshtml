@@ -112,16 +112,14 @@ document.getElementById('btnAnalyze').addEventListener('click', async () => {
                 'RequestVerificationToken': xsrfToken
             },
             body: JSON.stringify({
-                periodDays: days,          // ✔ MATCH Backend DTO
-                vectorType: vectorType     // ✔ MATCH Backend DTO
+                periodDays: days,
+                vectorType: vectorType
             })
         });
 
         if (!response.ok) {
-            const text = await response.text();
-            console.log("ERROR RESPONSE:", text);
-            alert(text || "Generation failed");
-            throw new Error(text);
+            const errorDetails = await response.text();
+            throw new Error(`Backend Error: ${response.status} - ${errorDetails}`);
         }
 
         const data = await response.json();
@@ -186,8 +184,8 @@ async function sendFeedback(isHelpful) {
                 'RequestVerificationToken': xsrfToken
             },
             body: JSON.stringify({
-                aiReviewId: currentReview.id,  // ✔ MATCH SubmitFeedbackDto
-                isHelpful: isHelpful           // ✔ MATCH SubmitFeedbackDto
+                aiReviewId: currentReview.id,
+                isHelpful: isHelpful
             })
         });
 
