@@ -94,7 +94,6 @@
 const currentReview = { id: 0 };
 
 const xsrfToken = '@tokens.RequestToken';
-
 document.getElementById('btnAnalyze').addEventListener('click', async () => {
 
     const vectorType = document.getElementById('vectorType').value;
@@ -113,15 +112,15 @@ document.getElementById('btnAnalyze').addEventListener('click', async () => {
                 'RequestVerificationToken': xsrfToken
             },
             body: JSON.stringify({
-                periodDays: days,
-                vectorType: vectorType
+                periodDays: days,          // ✔ MATCH Backend DTO
+                vectorType: vectorType     // ✔ MATCH Backend DTO
             })
         });
 
         if (!response.ok) {
             const text = await response.text();
             console.log("ERROR RESPONSE:", text);
-            alert(text);
+            alert(text || "Generation failed");
             throw new Error(text);
         }
 
@@ -187,19 +186,21 @@ async function sendFeedback(isHelpful) {
                 'RequestVerificationToken': xsrfToken
             },
             body: JSON.stringify({
-                aiReviewId: currentReview.id,
-                isHelpful: isHelpful
+                aiReviewId: currentReview.id,  // ✔ MATCH SubmitFeedbackDto
+                isHelpful: isHelpful           // ✔ MATCH SubmitFeedbackDto
             })
         });
 
-        if (!response.ok)
-            throw new Error('Server error');
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || "Server error");
+        }
 
         document.getElementById('feedbackBlock').style.display = 'none';
         alert('Дякуємо за відгук!');
 
-    } catch {
-        alert('Не вдалося зберегти відгук.');
+    } catch (error) {
+        alert(error.message || 'Не вдалося зберегти відгук.');
     }
 }
 
