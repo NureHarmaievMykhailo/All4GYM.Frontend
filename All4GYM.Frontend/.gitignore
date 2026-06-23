@@ -1,0 +1,24 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# Rider
+.idea/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Publish output
+publish/
+
+# Logs
+*.log
+
+# NuGet packages
+*.nupkg
+
+# OS generated files
+.DS_Store
+Thumbs.db

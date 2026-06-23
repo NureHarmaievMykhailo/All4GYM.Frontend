@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace All4GYM.Frontend.Pages;
 
+[IgnoreAntiforgeryToken]
 public class AIAnalyticsModel : BasePageModel
 {
     private readonly IHttpClientFactory _httpClientFactory;
