@@ -97,6 +97,13 @@ public class AIAnalyticsModel : BasePageModel
     [IgnoreAntiforgeryToken]
     public async Task<IActionResult> OnPostGenerateReviewAsync([FromBody] AIAnalysisRequestDto request)
     {
+        // Проверка валидности модели на самом фронте
+        if (!ModelState.IsValid)
+        {
+            var errors = string.Join(" | ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            return BadRequest($"Фронтенд Model Validation Error: {errors}");
+        }
+
         var jwt = Request.Cookies["jwt"];
         if (string.IsNullOrEmpty(jwt))
             return Unauthorized();
@@ -110,14 +117,17 @@ public class AIAnalyticsModel : BasePageModel
             var response = await client.PostAsJsonAsync("api/AI/review", request);
 
             if (!response.IsSuccessStatusCode)
-                return BadRequest(await response.Content.ReadAsStringAsync());
+            {
+                var apiError = await response.Content.ReadAsStringAsync();
+                return BadRequest($"Бэкенд API Error ({(int)response.StatusCode}): {apiError}");
+            }
 
             var result = await response.Content.ReadFromJsonAsync<AIAnalysisResultDto>();
             return new JsonResult(result);
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest($"Исключение на фронтенде: {ex.Message}");
         }
     }
     
