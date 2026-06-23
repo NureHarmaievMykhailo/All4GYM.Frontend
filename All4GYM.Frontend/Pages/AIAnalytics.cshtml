@@ -1,0 +1,190 @@
+﻿@page "{handler?}"
+@using System.Text.Json
+@model All4GYM.Frontend.Pages.AIAnalyticsModel
+@{
+    ViewData["Title"] = "AI Аналітика прогресу";
+}
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{
+    var tokens = Antiforgery.GetAndStoreTokens(HttpContext);
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card p-4 shadow-sm">
+                <h4 class="mb-3">🧠 Запустити AI Аналіз</h4>
+                
+                <div class="mb-3">
+                    <label class="form-label">Напрямок аналізу</label>
+                    <select id="vectorType" class="form-select">
+                        <option value="Nutrition">🍏 Аналіз харчування та ваги</option>
+                        <option value="Workout">🏋️‍♂️ Аналіз тренувань та прогресії</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Період даних</label>
+                    <select id="daysPeriod" class="form-select">
+                        <option value="7">За останні 7 днів</option>
+                        <option value="30">За останні 30 днів</option>
+                        <option value="90">За останні 90 днів</option>
+                    </select>
+                </div>
+
+                <button type="button" id="btnAnalyze" class="btn btn-primary w-100">
+                    🚀 INITIALIZE ANALYSIS
+                </button>
+                
+                <hr class="my-4" />
+
+                <h5>📋 Попередні звіти</h5>
+                <div class="list-group mt-2 overflow-auto" style="max-height: 300px;" id="historyList">
+                    @foreach (var review in Model.NutritionHistory)
+                    {
+                        <button class="list-group-item list-group-item-action history-item" 
+                                data-overview="@review.Overview" 
+                                data-trend="@review.TrendPrediction"
+                                data-recommendations="@JsonSerializer.Serialize(review.Recommendations)"
+                                data-id="@review.Id">
+                            🍏 Звіт від @review.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div id="aiLoader" class="text-center my-5" style="display: none;">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+                <p class="mt-3 text-muted animate-pulse">Gemini аналізує ваші тренувальні щоденники...</p>
+            </div>
+
+            <div id="aiResultCard" class="card p-4 shadow-sm" style="min-height: 450px;">
+                <div id="placeholderContent" class="text-center my-auto">
+                    <h3 class="text-muted">Оберіть параметри та запустіть аналіз</h3>
+                    <p class="text-muted">ІІ згенерує персональний огляд, знайде помилки та спрогнозує тренд.</p>
+                </div>
+
+                <div id="analysisOutput" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="text-primary mb-0">✨ Персональний ІІ-Огляд</h3>
+                        <div id="feedbackBlock" class="d-flex gap-2">
+                            <button id="btnLike" class="btn btn-sm btn-outline-success">👍 Корисно</button>
+                            <button id="btnDislike" class="btn btn-sm btn-outline-danger">👎 Не підходить</button>
+                        </div>
+                    </div>
+
+                    <h5 class="mt-3">📝 Загальний висновок</h5>
+                    <p id="lblOverview" class="text-justify border-start border-primary border-3 ps-3 py-1 bg-light"></p>
+
+                    <h5 class="mt-4">🎯 Тактичні рекомендації</h5>
+                    <ul id="listRecommendations" class="list-group list-group-flush mb-3"></ul>
+
+                    <h5 class="mt-4">📈 Прогноз та Тренд</h5>
+                    <div class="p-3 bg-dark text-light rounded font-monospace" id="lblTrend"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const currentReview = { id: 0 };
+
+        // AJAX Настройки для CSRF защиты Razor Pages
+        const xsrfToken = '@tokens.RequestToken';
+
+        document.getElementById('btnAnalyze').addEventListener('click', async () => {
+            const vectorType = document.getElementById('vectorType').value;
+            const days = parseInt(document.getElementById('daysPeriod').value);
+
+            // Переключаем UI на режим загрузки
+            document.getElementById('placeholderContent').style.display = 'none';
+            document.getElementById('analysisOutput').style.display = 'none';
+            document.getElementById('aiLoader').style.display = 'block';
+            document.getElementById('btnAnalyze').disabled = true;
+
+            try {
+                const response = await fetch('/AIAnalytics?handler=GenerateReview', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': xsrfToken
+                    },
+                    body: JSON.stringify({ days: days, vectorType: vectorType })
+                });
+
+                if (!response.Ok) throw new Error('Помилка генерації аналізу.');
+
+                const data = await response.json();
+                renderReview(data);
+            } catch (error) {
+                alert(error.message);
+                document.getElementById('placeholderContent').style.display = 'block';
+            } finally {
+                document.getElementById('aiLoader').style.display = 'none';
+                document.getElementById('btnAnalyze').disabled = false;
+            }
+        });
+
+        // Функция рендеринга данных в сочные UI блоки
+        function renderReview(data) {
+            currentReview.id = data.id;
+            document.getElementById('lblOverview').innerText = data.overview;
+            document.getElementById('lblTrend').innerText = data.trendPrediction;
+
+            const list = document.getElementById('listRecommendations');
+            list.innerHTML = '';
+            data.recommendations.forEach(rec => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item ps-0 border-0';
+                li.innerHTML = `🔹 ${rec}`;
+                list.appendChild(li);
+            });
+
+            // Сброс и показ блока фидбека
+            document.getElementById('feedbackBlock').style.display = 'flex';
+            document.getElementById('analysisOutput').style.display = 'block';
+        }
+
+        // Клик по истории (Мгновенный рендер из кэша БД)
+        document.querySelectorAll('.history-item').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const target = e.currentTarget;
+                const data = {
+                    id: parseInt(target.getAttribute('data-id')),
+                    overview: target.getAttribute('data-overview'),
+                    trendPrediction: target.getAttribute('data-trend'),
+                    recommendations: JSON.parse(target.getAttribute('data-recommendations'))
+                };
+                document.getElementById('placeholderContent').style.display = 'none';
+                renderReview(data);
+            });
+        });
+
+        // Отправка лайков/дизлайков через AJAX Хэндлер
+        async function sendFeedback(isPositive) {
+            if(currentReview.id === 0) return;
+            try {
+                await fetch('/AIAnalytics?handler=SubmitFeedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': xsrfToken
+                    },
+                    body: JSON.stringify({ reviewId: currentReview.id, isPositive: isPositive })
+                });
+                document.getElementById('feedbackBlock').style.display = 'none';
+                alert('❤️ Дякуємо за ваш відгук!');
+            } catch {
+                alert('Не вдалося зберегти відгук.');
+            }
+        }
+
+        document.getElementById('btnLike').addEventListener('click', () => sendFeedback(true));
+        document.getElementById('btnDislike').addEventListener('click', () => sendFeedback(false));
+    </script>
+}
