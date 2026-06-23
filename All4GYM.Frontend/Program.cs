@@ -18,7 +18,7 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddAntiforgery(options =>
 {
-    options.HeaderName = "RequestVerificationToken";
+    options.HeaderName = "X-XSRF-TOKEN";
 });
 
 // Cookie authentication

@@ -112,7 +112,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'RequestVerificationToken': xsrfToken
+                        'X-XSRF-TOKEN': xsrfToken
                     },
                     body: JSON.stringify({ days: days, vectorType: vectorType })
                 });
