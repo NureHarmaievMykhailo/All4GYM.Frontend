@@ -94,6 +94,7 @@ public class AIAnalyticsModel : BasePageModel
         return Page();
     }
 
+    [IgnoreAntiforgeryToken]
     public async Task<IActionResult> OnPostGenerateReviewAsync([FromBody] AIAnalysisRequestDto request)
     {
         var jwt = Request.Cookies["jwt"];
@@ -120,6 +121,7 @@ public class AIAnalyticsModel : BasePageModel
         }
     }
     
+    [IgnoreAntiforgeryToken]
     public async Task<IActionResult> OnPostSubmitFeedbackAsync([FromBody] SubmitFeedbackDto request)
     {
         var jwt = Request.Cookies["jwt"];
