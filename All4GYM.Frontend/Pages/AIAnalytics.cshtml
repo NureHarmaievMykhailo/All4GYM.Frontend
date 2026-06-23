@@ -92,99 +92,109 @@
 
 @section Scripts {
     <script>
-        const currentReview = { id: 0 };
+    const currentReview = { id: 0 };
 
-        // AJAX Настройки для CSRF защиты Razor Pages
-        const xsrfToken = '@tokens.RequestToken';
+    // AJAX Настройки для CSRF защиты Razor Pages
+    const xsrfToken = '@tokens.RequestToken';
 
-        document.getElementById('btnAnalyze').addEventListener('click', async () => {
-            const vectorType = document.getElementById('vectorType').value;
-            const days = parseInt(document.getElementById('daysPeriod').value);
+    document.getElementById('btnAnalyze').addEventListener('click', async () => {
+        const vectorType = document.getElementById('vectorType').value;
+        const days = parseInt(document.getElementById('daysPeriod').value);
 
-            // Переключаем UI на режим загрузки
+        // Переключаем UI на режим загрузки
+        document.getElementById('placeholderContent').style.display = 'none';
+        document.getElementById('analysisOutput').style.display = 'none';
+        document.getElementById('aiLoader').style.display = 'block';
+        document.getElementById('btnAnalyze').disabled = true;
+
+        try {
+            const response = await fetch('/AIAnalytics?handler=GenerateReview', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-XSRF-TOKEN': xsrfToken // Правильный заголовок
+                },
+                body: JSON.stringify({ days: days, vectorType: vectorType })
+            });
+
+            // ИСПРАВЛЕНО: .ok с маленькой буквы!
+            if (!response.ok) {
+                // Если сервер вернул ошибку, пробуем прочитать текст ошибки для понимания проблемы
+                const errText = await response.text();
+                throw new Error(errText || 'Помилка генерації аналізу.');
+            }
+
+            const data = await response.json();
+            renderReview(data);
+        } catch (error) {
+            alert(`Помилка: ${error.message}`);
+            document.getElementById('placeholderContent').style.display = 'block';
+        } finally {
+            document.getElementById('aiLoader').style.display = 'none';
+            document.getElementById('btnAnalyze').disabled = false;
+        }
+    });
+
+    // Функция рендеринга данных в сочные UI блоки
+    function renderReview(data) {
+        currentReview.id = data.id;
+        document.getElementById('lblOverview').innerText = data.overview;
+        document.getElementById('lblTrend').innerText = data.trendPrediction;
+
+        const list = document.getElementById('listRecommendations');
+        list.innerHTML = '';
+        data.recommendations.forEach(rec => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item ps-0 border-0';
+            li.innerHTML = `🔹 ${rec}`;
+            list.appendChild(li);
+        });
+
+        // Сброс и показ блока фидбека
+        document.getElementById('feedbackBlock').style.display = 'flex';
+        document.getElementById('analysisOutput').style.display = 'block';
+    }
+
+    // Клик по истории (Мгновенный рендер из кэша БД)
+    document.querySelectorAll('.history-item').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const target = e.currentTarget;
+            const data = {
+                id: parseInt(target.getAttribute('data-id')),
+                overview: target.getAttribute('data-overview'),
+                trendPrediction: target.getAttribute('data-trend'),
+                // Добавлена безопасная обработка парсинга
+                recommendations: JSON.parse(target.getAttribute('data-recommendations') || "[]")
+            };
             document.getElementById('placeholderContent').style.display = 'none';
-            document.getElementById('analysisOutput').style.display = 'none';
-            document.getElementById('aiLoader').style.display = 'block';
-            document.getElementById('btnAnalyze').disabled = true;
-
-            try {
-                const response = await fetch('/AIAnalytics?handler=GenerateReview', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-XSRF-TOKEN': xsrfToken
-                    },
-                    body: JSON.stringify({ days: days, vectorType: vectorType })
-                });
-
-                if (!response.Ok) throw new Error('Помилка генерації аналізу.');
-
-                const data = await response.json();
-                renderReview(data);
-            } catch (error) {
-                alert(error.message);
-                document.getElementById('placeholderContent').style.display = 'block';
-            } finally {
-                document.getElementById('aiLoader').style.display = 'none';
-                document.getElementById('btnAnalyze').disabled = false;
-            }
+            renderReview(data);
         });
+    });
 
-        // Функция рендеринга данных в сочные UI блоки
-        function renderReview(data) {
-            currentReview.id = data.id;
-            document.getElementById('lblOverview').innerText = data.overview;
-            document.getElementById('lblTrend').innerText = data.trendPrediction;
-
-            const list = document.getElementById('listRecommendations');
-            list.innerHTML = '';
-            data.recommendations.forEach(rec => {
-                const li = document.createElement('li');
-                li.className = 'list-group-item ps-0 border-0';
-                li.innerHTML = `🔹 ${rec}`;
-                list.appendChild(li);
+    // Отправка лайков/дизлайков через AJAX Хэндлер
+    async function sendFeedback(isPositive) {
+        if(currentReview.id === 0) return;
+        try {
+            const response = await fetch('/AIAnalytics?handler=SubmitFeedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-XSRF-TOKEN': xsrfToken // ИСПРАВЛЕНО: обновлено имя заголовка
+                },
+                body: JSON.stringify({ reviewId: currentReview.id, isPositive: isPositive })
             });
 
-            // Сброс и показ блока фидбека
-            document.getElementById('feedbackBlock').style.display = 'flex';
-            document.getElementById('analysisOutput').style.display = 'block';
+            if (!response.ok) throw new Error('Помилка сервера');
+
+            document.getElementById('feedbackBlock').style.display = 'none';
+            alert('❤️ Дякуємо за ваш відгук!');
+        } catch {
+            alert('Не вдалося зберегти відгук.');
         }
+    }
 
-        // Клик по истории (Мгновенный рендер из кэша БД)
-        document.querySelectorAll('.history-item').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const target = e.currentTarget;
-                const data = {
-                    id: parseInt(target.getAttribute('data-id')),
-                    overview: target.getAttribute('data-overview'),
-                    trendPrediction: target.getAttribute('data-trend'),
-                    recommendations: JSON.parse(target.getAttribute('data-recommendations'))
-                };
-                document.getElementById('placeholderContent').style.display = 'none';
-                renderReview(data);
-            });
-        });
-
-        // Отправка лайков/дизлайков через AJAX Хэндлер
-        async function sendFeedback(isPositive) {
-            if(currentReview.id === 0) return;
-            try {
-                await fetch('/AIAnalytics?handler=SubmitFeedback', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': xsrfToken
-                    },
-                    body: JSON.stringify({ reviewId: currentReview.id, isPositive: isPositive })
-                });
-                document.getElementById('feedbackBlock').style.display = 'none';
-                alert('❤️ Дякуємо за ваш відгук!');
-            } catch {
-                alert('Не вдалося зберегти відгук.');
-            }
-        }
-
-        document.getElementById('btnLike').addEventListener('click', () => sendFeedback(true));
-        document.getElementById('btnDislike').addEventListener('click', () => sendFeedback(false));
+    document.getElementById('btnLike').addEventListener('click', () => sendFeedback(true));
+    document.getElementById('btnDislike').addEventListener('click', () => sendFeedback(false));
     </script>
+    }
 }
