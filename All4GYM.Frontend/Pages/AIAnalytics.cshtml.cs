@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using All4GYM.Frontend.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.IO;
+using System.Text;
+using System.Text.Json;
 
 namespace All4GYM.Frontend.Pages;
 
@@ -95,15 +98,33 @@ public class AIAnalyticsModel : BasePageModel
     }
 
     [IgnoreAntiforgeryToken]
-    public async Task<IActionResult> OnPostGenerateReviewAsync([FromBody] AIAnalysisRequestDto request)
+    public async Task<IActionResult> OnPostGenerateReviewAsync()
     {
-        // Проверка валидности модели на самом фронте
-        if (!ModelState.IsValid)
-        {
-            var errors = string.Join(" | ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
-            return BadRequest($"Фронтенд Model Validation Error: {errors}");
-        }
+        AIAnalysisRequestDto? request = null;
 
+        try
+        {
+            using var reader = new StreamReader(Request.Body, Encoding.UTF8);
+            var body = await reader.ReadToEndAsync();
+
+            if (string.IsNullOrEmpty(body))
+            {
+                return BadRequest("Критическая ошибка: Тело JSON запроса пустое.");
+            }
+            
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            request = JsonSerializer.Deserialize<AIAnalysisRequestDto>(body, options);
+
+            if (request == null)
+            {
+                return BadRequest("Критическая ошибка: Не удалось десериализовать JSON в ДТО.");
+            }
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Ошибка парсинга JSON на фронтенде: {ex.Message}");
+        }
+        
         var jwt = Request.Cookies["jwt"];
         if (string.IsNullOrEmpty(jwt))
             return Unauthorized();
@@ -127,7 +148,7 @@ public class AIAnalyticsModel : BasePageModel
         }
         catch (Exception ex)
         {
-            return BadRequest($"Исключение на фронтенде: {ex.Message}");
+            return BadRequest($"Исключение при отправке на бэк: {ex.Message}");
         }
     }
     
