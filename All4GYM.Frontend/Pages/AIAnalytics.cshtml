@@ -109,6 +109,7 @@ document.getElementById('btnAnalyze').addEventListener('click', async () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'RequestVerificationToken': xsrfToken
             },
             body: JSON.stringify({
                 periodDays: days,
@@ -118,6 +119,7 @@ document.getElementById('btnAnalyze').addEventListener('click', async () => {
 
         if (!response.ok) {
             const errorDetails = await response.text();
+            console.error('Full error:', response.status, errorDetails);
             throw new Error(`Backend Error: ${response.status} - ${errorDetails}`);
         }
 
@@ -180,6 +182,7 @@ async function sendFeedback(isHelpful) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'RequestVerificationToken': xsrfToken
             },
             body: JSON.stringify({
                 aiReviewId: currentReview.id,

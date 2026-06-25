@@ -1,8 +1,12 @@
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using All4GYM.Frontend.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -21,112 +25,123 @@ public class TrainingLibraryModel : BasePageModel
     public List<ProgramItem> Programs { get; set; } = new();
     public List<VideoItem> Videos { get; set; } = new();
 
-    [BindProperty(SupportsGet = true)] public string? Category { get; set; }
+    [BindProperty(SupportsGet = true)] 
+    public string? Category { get; set; }
 
     public class ProgramItem
     {
-        [JsonPropertyName("id")] public int Id { get; set; }
+        [JsonPropertyName("id")] 
+        public int Id { get; set; }
 
-        [JsonPropertyName("name")] public string Name { get; set; } = null!;
+        [JsonPropertyName("name")] 
+        public string Name { get; set; } = null!;
 
-        [JsonPropertyName("description")] public string? Description { get; set; }
+        [JsonPropertyName("description")] 
+        public string? Description { get; set; }
+
+        [JsonPropertyName("category")] 
+        public string? Category { get; set; }
     }
 
     public class VideoItem
     {
-        [JsonPropertyName("id")] public int Id { get; set; }
+        [JsonPropertyName("id")] 
+        public int Id { get; set; }
 
-        [JsonPropertyName("title")] public string Title { get; set; } = null!;
+        [JsonPropertyName("title")] 
+        public string Title { get; set; } = null!;
 
-        [JsonPropertyName("url")] public string Url { get; set; } = null!;
+        [JsonPropertyName("url")] 
+        public string Url { get; set; } = null!;
 
-        [JsonPropertyName("duration")] public int Duration { get; set; }
+        [JsonPropertyName("duration")] 
+        public int Duration { get; set; }
 
-        [JsonPropertyName("category")] public string? Category { get; set; }
+        [JsonPropertyName("category")] 
+        public string? Category { get; set; }
     }
 
     public async Task<IActionResult> OnGetAsync()
-{
-    var client = _httpClientFactory.CreateClient("ApiClient");
-    var jwt = Request.Cookies["jwt"];
-    if (!string.IsNullOrEmpty(jwt))
     {
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-        Console.WriteLine($"🔐 JWT added: {jwt.Substring(0, 20)}...");
-    }
-    else
-    {
-        Console.WriteLine("❌ JWT not found in cookies");
-        return RedirectToPage("/Login");
-    }
-
-    var profileRes = await client.GetAsync("api/User/profile");
-    if (!profileRes.IsSuccessStatusCode)
-    {
-        Console.WriteLine("❌ Failed to fetch profile");
-        return RedirectToPage("/AccessDenied");
-    }
-
-    var profileJson = await profileRes.Content.ReadAsStringAsync();
-    using var profileDoc = JsonDocument.Parse(profileJson);
-    var root = profileDoc.RootElement;
-
-    var hasActiveSubscription = root.GetProperty("hasActiveSubscription").GetBoolean();
-    var tierStr = root.GetProperty("subscriptionTier").GetString();
-
-    if (!hasActiveSubscription || !Enum.TryParse<SubscriptionTier>(tierStr, out var tier) || tier < SubscriptionTier.Premium)
-    {
-        Console.WriteLine("🚫 Access denied: insufficient subscription tier");
-        return RedirectToPage("/AccessDenied");
-    }
-
-    var programRes = await client.GetAsync("api/TrainingProgram");
-    Console.WriteLine($"📥 GET TrainingProgram → Status: {programRes.StatusCode}");
-
-    if (programRes.IsSuccessStatusCode)
-    {
-        var json = await programRes.Content.ReadAsStringAsync();
-        Console.WriteLine($"📦 TrainingProgram JSON: {json}");
-
-        try
+        var client = _httpClientFactory.CreateClient("ApiClient");
+        var jwt = Request.Cookies["jwt"];
+        if (!string.IsNullOrEmpty(jwt))
         {
-            Programs = JsonSerializer.Deserialize<List<ProgramItem>>(json)!;
-            Console.WriteLine($"✅ Programs loaded: {Programs.Count}");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+            Console.WriteLine($"🔐 JWT added: {jwt.Substring(0, 20)}...");
         }
-        catch (Exception ex)
+        else
         {
-            Console.WriteLine($"❌ Failed to deserialize programs: {ex.Message}");
+            Console.WriteLine("❌ JWT not found in cookies");
+            return RedirectToPage("/Login");
         }
-    }
-
-    var videoRes = await client.GetAsync("api/VideoContent");
-    Console.WriteLine($"📥 GET VideoContent → Status: {videoRes.StatusCode}");
-
-    if (videoRes.IsSuccessStatusCode)
-    {
-        var json = await videoRes.Content.ReadAsStringAsync();
-        Console.WriteLine($"📦 VideoContent JSON: {json}");
-
-        try
+        
+        var profileRes = await client.GetAsync("api/User/profile");
+        if (!profileRes.IsSuccessStatusCode)
         {
-            var allVideos = JsonSerializer.Deserialize<List<VideoItem>>(json)!;
-            Videos = string.IsNullOrEmpty(Category)
-                ? allVideos
-                : allVideos.Where(v => v.Category?.Equals(Category, StringComparison.OrdinalIgnoreCase) == true)
-                    .ToList();
-
-            Console.WriteLine($"✅ Videos loaded: {Videos.Count}");
+            Console.WriteLine("❌ Failed to fetch profile");
+            return RedirectToPage("/AccessDenied");
         }
-        catch (Exception ex)
+
+        var profileJson = await profileRes.Content.ReadAsStringAsync();
+        using var profileDoc = JsonDocument.Parse(profileJson);
+        var root = profileDoc.RootElement;
+
+        var hasActiveSubscription = root.GetProperty("hasActiveSubscription").GetBoolean();
+        var tierStr = root.GetProperty("subscriptionTier").GetString();
+
+        if (!hasActiveSubscription || !Enum.TryParse<SubscriptionTier>(tierStr, out var tier) || tier < SubscriptionTier.Premium)
         {
-            Console.WriteLine($"❌ Failed to deserialize videos: {ex.Message}");
+            Console.WriteLine("🚫 Access denied: insufficient subscription tier");
+            return RedirectToPage("/AccessDenied");
         }
-    }
-    else if (videoRes.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-    {
-        Console.WriteLine("🚫 VideoContent request was unauthorized. Check role or JWT.");
-    }
+        
+        var programRes = await client.GetAsync("api/TrainingProgram");
+        Console.WriteLine($"📥 GET TrainingProgram → Status: {programRes.StatusCode}");
 
-    return Page();
-}
+        if (programRes.IsSuccessStatusCode)
+        {
+            var json = await programRes.Content.ReadAsStringAsync();
+            try
+            {
+                var allPrograms = JsonSerializer.Deserialize<List<ProgramItem>>(json)!;
+                Programs = string.IsNullOrEmpty(Category)
+                    ? allPrograms
+                    : allPrograms.Where(p => p.Category?.Equals(Category, StringComparison.OrdinalIgnoreCase) == true).ToList();
+
+                Console.WriteLine($"✅ Programs loaded: {Programs.Count}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Failed to deserialize programs: {ex.Message}");
+            }
+        }
+        
+        var videoRes = await client.GetAsync("api/VideoContent");
+        Console.WriteLine($"📥 GET VideoContent → Status: {videoRes.StatusCode}");
+
+        if (videoRes.IsSuccessStatusCode)
+        {
+            var json = await videoRes.Content.ReadAsStringAsync();
+            try
+            {
+                var allVideos = JsonSerializer.Deserialize<List<VideoItem>>(json)!;
+                Videos = string.IsNullOrEmpty(Category)
+                    ? allVideos
+                    : allVideos.Where(v => v.Category?.Equals(Category, StringComparison.OrdinalIgnoreCase) == true).ToList();
+
+                Console.WriteLine($"✅ Videos loaded: {Videos.Count}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Failed to deserialize videos: {ex.Message}");
+            }
+        }
+        else if (videoRes.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            Console.WriteLine("🚫 VideoContent request was unauthorized. Check role or JWT.");
+        }
+
+        return Page();
+    }
 }
