@@ -37,21 +37,46 @@
                     🚀 INITIALIZE ANALYSIS
                 </button>
                 
-                <hr class="my-4" />
+                <div class="mt-4">
+    <h5 class="mb-2">📋 Попередні звіти</h5>
+    
+    <div class="btn-group btn-group-sm w-100 mb-2" role="group" id="historyFilters">
+        <button type="button" class="btn btn-outline-primary active" data-filter="all">Усі</button>
+        <button type="button" class="btn btn-outline-primary" data-filter="Nutrition">🍏 Харчування</button>
+        <button type="button" class="btn btn-outline-primary" data-filter="Workout">🏋️‍♂️ Тренування</button>
+    </div>
 
-                <h5>📋 Попередні звіти</h5>
-                <div class="list-group mt-2 overflow-auto" style="max-height: 300px;" id="historyList">
-                    @foreach (var review in Model.NutritionHistory)
-                    {
-                        <button class="list-group-item list-group-item-action history-item" 
-                                data-overview="@review.Overview" 
-                                data-trend="@review.TrendPrediction"
-                                data-recommendations="@JsonSerializer.Serialize(review.Recommendations)"
-                                data-id="@review.Id">
-                            🍏 Звіт від @review.GeneratedAt.ToString("dd.MM.yyyy HH:mm")
-                        </button>
-                    }
-                </div>
+    <div class="list-group overflow-auto shadow-sm border rounded" style="max-height: 240px;" id="historyList">
+        @foreach (var review in Model.WorkoutHistory)
+        {
+            <button class="list-group-item list-group-item-action history-item" 
+                    data-vector="Workout"
+                    data-overview="@review.Overview" 
+                    data-trend="@review.TrendPrediction"
+                    data-recommendations="@JsonSerializer.Serialize(review.Recommendations)"
+                    data-id="@review.Id">
+                🏋️‍♂️ Звіт від @review.GeneratedAt.ToString("dd.MM.yyyy HH:mm")
+            </button>
+        }
+        
+        @foreach (var review in Model.NutritionHistory)
+        {
+            <button class="list-group-item list-group-item-action history-item" 
+                    data-vector="Nutrition"
+                    data-overview="@review.Overview" 
+                    data-trend="@review.TrendPrediction"
+                    data-recommendations="@JsonSerializer.Serialize(review.Recommendations)"
+                    data-id="@review.Id">
+                🍏 Звіт від @review.GeneratedAt.ToString("dd.MM.yyyy HH:mm")
+            </button>
+        }
+
+        @if (!Model.NutritionHistory.Any() && !Model.WorkoutHistory.Any())
+        {
+            <div class="text-center text-muted py-3 bg-light">Історія порожня</div>
+        }
+    </div>
+</div>
             </div>
         </div>
 
@@ -92,13 +117,11 @@
 
 <script>
 const currentReview = { id: 0 };
-
 const xsrfToken = '@tokens.RequestToken';
 document.getElementById('btnAnalyze').addEventListener('click', async () => {
-
     const vectorType = document.getElementById('vectorType').value;
     const days = parseInt(document.getElementById('daysPeriod').value);
-
+    
     document.getElementById('placeholderContent').style.display = 'none';
     document.getElementById('analysisOutput').style.display = 'none';
     document.getElementById('aiLoader').style.display = 'block';
@@ -125,8 +148,10 @@ document.getElementById('btnAnalyze').addEventListener('click', async () => {
 
         const data = await response.json();
         renderReview(data);
+        document.querySelectorAll('.history-item').forEach(i => i.classList.remove('active'));
 
     } catch (error) {
+        console.error('Помилка генерації аналізу:', error);
         alert(error.message);
         document.getElementById('placeholderContent').style.display = 'block';
     } finally {
@@ -136,45 +161,87 @@ document.getElementById('btnAnalyze').addEventListener('click', async () => {
 });
 
 function renderReview(data) {
-
     currentReview.id = data.id;
-
-    document.getElementById('lblOverview').innerText = data.overview;
-    document.getElementById('lblTrend').innerText = data.trendPrediction;
-
+    
+    document.getElementById('lblOverview').innerText = data.overview || "Огляд відсутній";
+    document.getElementById('lblTrend').innerText = data.trendPrediction || "Немає прогнозу";
+    
     const list = document.getElementById('listRecommendations');
     list.innerHTML = '';
 
-    (data.recommendations ?? []).forEach(rec => {
+    const recs = data.recommendations ?? [];
+    if (recs.length === 0) {
         const li = document.createElement('li');
-        li.className = 'list-group-item ps-0 border-0';
-        li.innerHTML = `🔹 ${rec}`;
+        li.className = 'list-group-item ps-0 border-0 text-muted';
+        li.innerText = 'Рекомендації відсутні';
         list.appendChild(li);
-    });
-
-    document.getElementById('feedbackBlock').style.display = 'flex';
+    } else {
+        recs.forEach(rec => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item ps-0 border-0 text-justify';
+            li.innerHTML = `🔹 ${rec}`;
+            list.appendChild(li);
+        });
+    }
+    
+    document.getElementById('feedbackBlock').style.display = currentReview.id > 0 ? 'flex' : 'none';
     document.getElementById('analysisOutput').style.display = 'block';
 }
 
 document.querySelectorAll('.history-item').forEach(btn => {
     btn.addEventListener('click', (e) => {
-
         const t = e.currentTarget;
+        document.querySelectorAll('.history-item').forEach(i => i.classList.remove('active'));
+        t.classList.add('active');
 
-        const data = {
-            id: parseInt(t.dataset.id),
-            overview: t.dataset.overview,
-            trendPrediction: t.dataset.trend,
-            recommendations: JSON.parse(t.dataset.recommendations || "[]")
-        };
+        try {
+            let recommendationsArray = [];
+            const rawRecs = t.dataset.recommendations;
+            if (rawRecs && rawRecs.trim() !== "") {
+                recommendationsArray = JSON.parse(rawRecs);
+            }
 
-        document.getElementById('placeholderContent').style.display = 'none';
-        renderReview(data);
+            const data = {
+                id: parseInt(t.dataset.id) || 0,
+                overview: t.dataset.overview,
+                trendPrediction: t.dataset.trend || t.dataset.trendPrediction,
+                recommendations: recommendationsArray
+            };
+
+            document.getElementById('placeholderContent').style.display = 'none';
+            renderReview(data);
+
+        } catch (error) {
+            console.error("Помилка парсингу даних з історії:", error);
+            alert("Не вдалося завантажити звіт з історії через помилку формату даних.");
+        }
+    });
+});
+
+document.querySelectorAll('#historyFilters button').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+        // Переключение активного визуального класса на вкладках
+        document.querySelectorAll('#historyFilters button').forEach(b => b.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+
+        const filterValue = e.currentTarget.dataset.filter;
+        const items = document.querySelectorAll('#historyList .history-item');
+
+        items.forEach(item => {
+            if (filterValue === 'all') {
+                item.style.setProperty('display', 'block', 'important');
+            } else {
+                if (item.dataset.vector === filterValue) {
+                    item.style.setProperty('display', 'block', 'important');
+                } else {
+                    item.style.setProperty('display', 'none', 'important');
+                }
+            }
+        });
     });
 });
 
 async function sendFeedback(isHelpful) {
-
     if (currentReview.id === 0) return;
 
     try {
@@ -194,16 +261,16 @@ async function sendFeedback(isHelpful) {
             const text = await response.text();
             throw new Error(text || "Server error");
         }
-
+        
         document.getElementById('feedbackBlock').style.display = 'none';
         alert('Дякуємо за відгук!');
 
     } catch (error) {
+        console.error('Помилка відправки відгуку:', error);
         alert(error.message || 'Не вдалося зберегти відгук.');
     }
 }
 
 document.getElementById('btnLike').addEventListener('click', () => sendFeedback(true));
 document.getElementById('btnDislike').addEventListener('click', () => sendFeedback(false));
-
 </script>

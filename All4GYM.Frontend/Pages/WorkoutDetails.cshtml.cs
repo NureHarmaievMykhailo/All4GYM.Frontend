@@ -18,6 +18,9 @@ public class WorkoutDetailsModel : BasePageModel
         _httpClientFactory = httpClientFactory;
     }
 
+    public string ApiBaseUrl { get; set; } = string.Empty;
+    public string JwtToken { get; set; } = string.Empty;
+    
     [BindProperty(SupportsGet = true)]
     public int Id { get; set; } // WorkoutId з URL
 
@@ -87,7 +90,9 @@ public class WorkoutDetailsModel : BasePageModel
         Console.WriteLine("❌ JWT not found");
         return RedirectToPage("/Login");
     }
-
+    
+    JwtToken = jwt;
+    ApiBaseUrl = client.BaseAddress?.ToString().TrimEnd('/') ?? "";
     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
     
     var profileRes = await client.GetAsync("api/User/profile");
@@ -131,8 +136,7 @@ public class WorkoutDetailsModel : BasePageModel
         var json = await exercisesRes.Content.ReadAsStringAsync();
         Exercises = JsonSerializer.Deserialize<List<ExerciseItem>>(json)!;
     }
-
-    // 🔽 Усі доступні вправи
+    
     var optionsRes = await client.GetAsync("api/Exercise");
     if (optionsRes.IsSuccessStatusCode)
     {

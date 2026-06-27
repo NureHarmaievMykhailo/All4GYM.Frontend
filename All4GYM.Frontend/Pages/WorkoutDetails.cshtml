@@ -45,29 +45,29 @@
     {
         <table class="table table-bordered">
             <thead>
-                <tr>
-                    <th>Назва</th>
-                    <th>Підходи</th>
-                    <th>Повтори</th>
-                    <th>Вага</th>
-                    <th></th>
-                </tr>
+            <tr>
+                <th>Назва</th>
+                <th>Підходи</th>
+                <th>Повтори</th>
+                <th>Вага</th>
+                <th></th>
+            </tr>
             </thead>
             <tbody>
-                @foreach (var ex in Model.Exercises)
-                {
-                    <tr>
-                        <td>@ex.ExerciseName</td>
-                        <td>@ex.Sets</td>
-                        <td>@ex.Reps</td>
-                        <td>@ex.Weight</td>
-                        <td>
-                            <form method="post" asp-page-handler="Delete" asp-route-exerciseId="@ex.ExerciseId">
-                                <button class="btn btn-sm btn-danger">🗑️</button>
-                            </form>
-                        </td>
-                    </tr>
-                }
+            @foreach (var ex in Model.Exercises)
+            {
+                <tr>
+                    <td>@ex.ExerciseName</td>
+                    <td>@ex.Sets</td>
+                    <td>@ex.Reps</td>
+                    <td>@ex.Weight</td>
+                    <td>
+                        <form method="post" asp-page-handler="Delete" asp-route-exerciseId="@ex.ExerciseId">
+                            <button class="btn btn-sm btn-danger">🗑️</button>
+                        </form>
+                    </td>
+                </tr>
+            }
             </tbody>
         </table>
     }
@@ -75,5 +75,88 @@
     {
         <p>Немає доданих вправ.</p>
     }
-    <a asp-page="/Workouts" class="btn btn-secondary ms-2">⬅️ Назад</a>
+    
+    <div class="mt-4 d-flex gap-2 align-items-center">
+        <a asp-page="/Workouts" class="btn btn-secondary">⬅️ Назад</a>
+        
+        @if (Model.Exercises.Any())
+        {
+            <button type="button" id="btnAiOptimize" class="btn btn-primary bg-gradient">
+                🤖 Запустити AI-Оптимізацію вправ
+            </button>
+        }
+    </div>
+    
+    <div id="aiOptimizationResult" class="mt-4 card p-4 shadow-sm border-start border-primary border-4 bg-light" style="display: none;"></div>
 </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const btn = document.getElementById('btnAiOptimize');
+        if (!btn) return;
+
+        btn.addEventListener('click', async () => {
+            const resultBlock = document.getElementById('aiOptimizationResult');
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ⏳ Аналіз прогресії...`;
+            resultBlock.style.display = 'none';
+
+            try {
+                const apiUrl = "@Model.ApiBaseUrl";
+                const jwtToken = "@Model.JwtToken";
+                const workoutId = "@Model.Id";
+
+                const response = await fetch(`${apiUrl}/api/AI/optimize-workout/${workoutId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${jwtToken}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Помилка сервера: ${response.status}`);
+                }
+                const data = await response.json();
+                resultBlock.innerHTML = `
+                    <div class="ai-analysis-container">
+                        <h4 class="mb-3 text-dark">📋 Вердикт AI-Аналітика All4GYM</h4>
+                        <hr/>
+                        <div class="mb-3">
+                            <h6 class="text-primary fw-bold">⚡ Оптимізація порядку вправ:</h6>
+                            <p class="text-muted bg-white p-2 rounded border">${escapeHtml(data.orderOptimization)}</p>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="text-danger fw-bold">📉 Виявлені патерни плато (застою):</h6>
+                            <p class="text-muted bg-white p-2 rounded border">${escapeHtml(data.plateauDetection)}</p>
+                        </div>
+                        <div>
+                            <h6 class="text-success fw-bold">🎯 Стратегічний план на наступний раз:</h6>
+                            <p class="text-dark bg-white p-2 rounded border fw-medium">${escapeHtml(data.futurePlan)}</p>
+                        </div>
+                    </div>
+                `;
+                
+                resultBlock.style.display = 'block';
+
+            } catch (err) {
+                console.error("AI Optimization Error:", err);
+                alert("Не вдалося виконати AI-аналіз: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "🤖 Запустити AI-Оптимізацію вправ";
+            }
+        });
+
+        // Функция экранирования HTML (Защита диплома от XSS уязвимостей)
+        function escapeHtml(unsafe) {
+            if (!unsafe) return "Дані аналізу за цим критерієм відсутні.";
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    });
+</script>
