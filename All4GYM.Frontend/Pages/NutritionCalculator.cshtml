@@ -4,67 +4,209 @@
     ViewData["Title"] = "Калькулятор калорій і БЖВ";
 }
 
-<div class="container mt-5">
-    <h2>🍽️ Калькулятор калорій і БЖВ</h2>
-
-    <form method="post" class="mb-4">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <label asp-for="Input.Gender" class="form-label">Стать</label>
-                <select asp-for="Input.Gender" class="form-select">
-                    <option value="male">Чоловік</option>
-                    <option value="female">Жінка</option>
-                </select>
-            </div>
-            <div class="col-md-4 mb-3">
-                <label asp-for="Input.Age" class="form-label">Вік</label>
-                <input asp-for="Input.Age" class="form-control" />
-            </div>
-            <div class="col-md-4 mb-3">
-                <label asp-for="Input.Weight" class="form-label">Вага (кг)</label>
-                <input asp-for="Input.Weight" class="form-control" />
-            </div>
-            <div class="col-md-4 mb-3">
-                <label asp-for="Input.Height" class="form-label">Зріст (см)</label>
-                <input asp-for="Input.Height" class="form-control" />
-            </div>
-            <div class="col-md-4 mb-3">
-                <label asp-for="Input.ActivityLevel" class="form-label">Активність</label>
-                <select asp-for="Input.ActivityLevel" class="form-select">
-                    <option value="low">Низька</option>
-                    <option value="moderate">Середня</option>
-                    <option value="high">Висока</option>
-                </select>
-            </div>
-            <div class="col-md-4 mb-3">
-                <label asp-for="Input.Goal" class="form-label">Мета</label>
-                <select asp-for="Input.Goal" class="form-select">
-                    <option value="lose">Схуднення</option>
-                    <option value="maintain">Підтримка</option>
-                    <option value="gain">Набір маси</option>
-                </select>
-            </div>
+<div class="container py-5" style="max-width: 960px;">
+    <div class="bg-success text-white p-4 p-md-5 rounded-4 mb-4 shadow-sm position-relative overflow-hidden" style="background: linear-gradient(135deg, #198754 0%, #146c43 100%);">
+        <div class="position-relative z-1">
+            <span class="badge bg-white text-success fw-bold px-3 py-2 mb-3 rounded-pill">Premium Модуль</span>
+            <h1 class="fw-extrabold mb-2 display-6">Калькулятор добової норми</h1>
+            <p class="mb-0 opacity-75 fs-5">Персональний розрахунок метаболізму (BMR, TDEE), макронутриєнтів та ІМТ на основі формули Миффлина — Сан Жеора</p>
         </div>
-        <button class="btn btn-primary">🔍 Розрахувати</button>
-        <a asp-page="/MealLog" class="btn btn-secondary ms-2">⬅️ Назад</a>
-    </form>
+        <div class="position-absolute rounded-circle bg-white opacity-10" style="width: 200px; height: 200px; right: -50px; bottom: -50px;"></div>
+    </div>
+    
+    <div class="card shadow-sm border-0 rounded-4 p-4 p-md-5 mb-5 bg-white">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 rounded-3"></div>
+            
+            <div class="mb-4">
+                <label class="form-label fw-bold text-dark fs-5 mb-3">| 👤 Стать</label>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <input type="radio" asp-for="Input.Gender" value="male" class="btn-check" id="genderMale" checked />
+                        <label class="btn btn-outline-success w-100 py-3 rounded-3 fw-bold border-2" for="genderMale">
+                            <span class="fs-4 d-block mb-1">♂️</span> Чоловік
+                        </label>
+                    </div>
+                    <div class="col-6">
+                        <input type="radio" asp-for="Input.Gender" value="female" class="btn-check" id="genderFemale" />
+                        <label class="btn btn-outline-success w-100 py-3 rounded-3 fw-bold border-2" for="genderFemale">
+                            <span class="fs-4 d-block mb-1">♀️</span> Жінка
+                        </label>
+                    </div>
+                </div>
+                <span asp-validation-for="Input.Gender" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-bold text-dark fs-5 mb-3">| ⚖️ Фізичні показники</label>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label asp-for="Input.Age" class="form-label text-muted small fw-bold">Вік, років *</label>
+                        <div class="input-group">
+                            <input asp-for="Input.Age" type="number" class="form-control form-control-lg rounded-3 shadow-none bg-light border-0" placeholder="22" />
+                        </div>
+                        <span asp-validation-for="Input.Age" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Input.Height" class="form-label text-muted small fw-bold">Зріст, см *</label>
+                        <div class="input-group">
+                            <input asp-for="Input.Height" type="number" class="form-control form-control-lg rounded-3 shadow-none bg-light border-0" placeholder="175" />
+                        </div>
+                        <span asp-validation-for="Input.Height" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Input.Weight" class="form-label text-muted small fw-bold">Вага, кг *</label>
+                        <div class="input-group">
+                            <input asp-for="Input.Weight" type="number" step="0.1" class="form-control form-control-lg rounded-3 shadow-none bg-light border-0" placeholder="70" />
+                        </div>
+                        <span asp-validation-for="Input.Weight" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="Input.ActivityLevel" class="form-label fw-bold text-dark fs-5 mb-2">| ⚡ Рівень активності</label>
+                    <select asp-for="Input.ActivityLevel" class="form-select form-select-lg rounded-3 border-0 bg-light shadow-none">
+                        <option value="low">Низька — сидяча робота, мінімум рухів</option>
+                        <option value="moderate">Середня — тренування 3-5 разів на тиждень</option>
+                        <option value="high">Висока — важкі щоденні навантаження</option>
+                    </select>
+                    <span asp-validation-for="Input.ActivityLevel" class="text-danger small mt-1 d-block"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Input.Goal" class="form-label fw-bold text-dark fs-5 mb-2">| 🎯 Фітнес-мета</label>
+                    <select asp-for="Input.Goal" class="form-select form-select-lg rounded-3 border-0 bg-light shadow-none">
+                        <option value="lose">Схуднення (плавний дефіцит калорій)</option>
+                        <option value="maintain">Підтримка поточної форми (баланс)</option>
+                        <option value="gain">Набір маси (профіцит для м'язів)</option>
+                    </select>
+                    <span asp-validation-for="Input.Goal" class="text-danger small mt-1 d-block"></span>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 pt-3">
+                <button type="submit" class="btn btn-success btn-lg px-5 py-3 rounded-3 fw-bold flex-grow-1 shadow-sm transition-all">🔍 Розрахувати та зберегти</button>
+                <a asp-page="/MealLog" class="btn btn-outline-secondary btn-lg px-4 py-3 rounded-3">⬅️ До Щоденника</a>
+            </div>
+        </form>
+    </div>
 
     @if (Model.Result != null)
     {
-        <div class="alert alert-success">
-            <h5>Ваші добові потреби:</h5>
-            <ul>
-                <li>Калорії: <strong>@Model.Result.Calories</strong> ккал</li>
-                <li>Білки: <strong>@Model.Result.Protein</strong> г</li>
-                <li>Жири: <strong>@Model.Result.Fat</strong> г</li>
-                <li>Вуглеводи: <strong>@Model.Result.Carbs</strong> г</li>
-            </ul>
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-5 animate-fade-in" id="resultsSection">
+            <!-- Верхняя плашка итогов -->
+            <div class="bg-dark text-white p-4 p-md-5" style="background: linear-gradient(135deg, #212529 0%, #343a40 100%);">
+                <div class="row align-items-center">
+                    <div class="col-md-8 mb-3 mb-md-0">
+                        <h4 class="fw-extrabold mb-1 fs-3">Ваші результати розраховані!</h4>
+                        <p class="mb-0 text-muted small">
+                            Параметри: <span class="text-light fw-bold">@(Model.Input.Gender == "male" ? "Чоловік" : "Жінка")</span>, 
+                            вік: <span class="text-light fw-bold">@Model.Input.Age р.</span>, 
+                            вага: <span class="text-light fw-bold">@Model.Input.Weight кг</span>, 
+                            зріст: <span class="text-light fw-bold">@Model.Input.Height см</span>
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <span class="badge bg-success px-3 py-2 rounded-2 text-uppercase tracking-wider">Оновлено в базі даних</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 p-md-5 bg-light">
+                <div class="row text-center g-3 mb-5">
+                    <div class="col-md-6 mx-auto">
+                        <div class="bg-white p-4 rounded-4 shadow-sm border border-success border-2" style="background-color: #f8fff9 !important;">
+                            <span class="text-success text-uppercase fw-extrabold small tracking-widest d-block mb-1">Рекомендована добова норма</span>
+                            <h2 class="display-4 fw-black text-success my-2">@Model.Result.Calories</h2>
+                            <span class="text-muted fw-bold">ккал / день</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm">
+                    <h5 class="fw-bold text-dark mb-4 d-flex align-items-center">
+                        <span class="me-2">🥗</span> Розподіл макронутрієнтів (БЖВ)
+                    </h5>
+                    
+                    @{
+                        float totalGrams = Model.Result.Protein + Model.Result.Fat + Model.Result.Carbs;
+                        float pWidth = totalGrams > 0 ? (Model.Result.Protein / totalGrams) * 100 : 33;
+                        float fWidth = totalGrams > 0 ? (Model.Result.Fat / totalGrams) * 100 : 33;
+                        float cWidth = totalGrams > 0 ? (Model.Result.Carbs / totalGrams) * 100 : 33;
+                    }
+                    
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold fs-6 text-secondary">🥩 Білки</span>
+                            <span class="badge bg-success fs-6 px-3">@Model.Result.Protein г</span>
+                        </div>
+                        <div class="progress rounded-pill shadow-none bg-light" style="height: 12px;">
+                            <div class="progress-bar bg-success rounded-pill" style="width: @pWidth%"></div>
+                        </div>
+                        <small class="text-muted d-block mt-1">Будівельний матеріал для м'язів та тканин</small>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold fs-6 text-secondary">🥑 Жири</span>
+                            <span class="badge bg-warning text-dark fs-6 px-3">@Model.Result.Fat г</span>
+                        </div>
+                        <div class="progress rounded-pill shadow-none bg-light" style="height: 12px;">
+                            <div class="progress-bar bg-warning rounded-pill" style="width: @fWidth%"></div>
+                        </div>
+                        <small class="text-muted d-block mt-1">Здоров'я гормональної системи та клітинних мембран</small>
+                    </div>
+
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold fs-6 text-secondary">🌾 Вуглеводи</span>
+                            <span class="badge bg-info text-dark fs-6 px-3">@Model.Result.Carbs г</span>
+                        </div>
+                        <div class="progress rounded-pill shadow-none bg-light" style="height: 12px;">
+                            <div class="progress-bar bg-info rounded-pill" style="width: @cWidth%"></div>
+                        </div>
+                        <small class="text-muted d-block mt-1">Головне джерело енергії для тренувань та мозку</small>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info border-0 rounded-4 p-4 mt-4 d-flex align-items-start gap-3">
+                    <span class="fs-3">💡</span>
+                    <div>
+                        <h6 class="fw-bold text-dark mb-1">Що далі?</h6>
+                        <p class="mb-0 text-secondary small">Ці цілі вже збережено у вашому профілі. Перейдіть до <a asp-page="/MealLog" class="fw-bold text-info text-decoration-none">Щоденника харчування</a>, щоб відстежувати свій прогрес на круговій діаграмі в реальному часі.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     }
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const resultsEl = document.getElementById("resultsSection");
+            if (resultsEl) {
+                resultsEl.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        });
+    </script>
+
+    <style>
+        .fw-extrabold { font-weight: 800; }
+        .fw-black { font-weight: 900; }
+        .tracking-wider {letter-spacing: 0.05em; }
+        .transition-all { transition: all 0.2s ease-in-out; }
+        .btn-success:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(25, 135, 84, 0.2); }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 }
