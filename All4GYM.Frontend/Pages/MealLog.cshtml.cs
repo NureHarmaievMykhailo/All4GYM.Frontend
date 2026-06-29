@@ -18,6 +18,8 @@ public class MealLogModel : BasePageModel
         _httpClientFactory = httpClientFactory;
     }
 
+    public string ApiBaseUrl { get; set; } = string.Empty;
+    public string JwtToken { get; set; } = string.Empty;
     public List<MealLogItem> Entries { get; set; } = new();
     public List<FoodItemOption> FoodItems { get; set; } = new();
 
@@ -93,6 +95,8 @@ public class MealLogModel : BasePageModel
         if (string.IsNullOrEmpty(jwt)) return RedirectToPage("/Login");
 
         var client = CreateClient();
+        JwtToken = jwt;
+        ApiBaseUrl = client.BaseAddress?.ToString().TrimEnd('/') ?? "";
 
         try
         {
@@ -144,8 +148,7 @@ public class MealLogModel : BasePageModel
     public async Task<IActionResult> OnPostAsync()
     {
         if (!ModelState.IsValid || UserId == null) return await OnGetAsync();
-
-        // Додати дату, якщо не вказано
+        
         if (SelectedDate != null)
         {
             NewEntry.Date = SelectedDate.Value;

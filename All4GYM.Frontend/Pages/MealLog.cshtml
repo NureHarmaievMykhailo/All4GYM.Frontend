@@ -5,17 +5,54 @@
 }
 
 <div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>🍽️ Харчовий щоденник</h2>
-    <a asp-page="/NutritionCalculator" class="btn btn-outline-primary">
-        🔢 Розрахувати денну норму калорій
-    </a>
+    <!-- 🔽 Оновлений хедер з кнопкою AI -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>🍽️ Харчовий щоденник</h2>
+        <div class="d-flex gap-2">
+            <button type="button" id="btnAiAnalyzeNutrition" class="btn btn-primary bg-gradient text-white border-0 shadow-sm px-4">
+                ✨ AI-Аналіз дня
+            </button>
+            <a asp-page="/NutritionCalculator" class="btn btn-outline-primary">
+                🔢 Розрахувати денну норму калорій
+            </a>
+        </div>
+    </div>
+    
+    <div id="aiNutritionResult" class="card shadow-lg border-0 rounded-4 mb-4" style="display: none; overflow: hidden;">
+        <div class="card-header bg-gradient bg-primary text-white p-3">
+            <h5 class="mb-0">🤖 Персональний AI-Нутриціолог</h5>
+        </div>
+        <div class="card-body p-4 bg-light">
+            <div class="row g-4">
+                <!-- Оцінка балансу -->
+                <div class="col-md-4">
+                    <div class="h-100 p-3 bg-white rounded-3 shadow-sm border-start border-4 border-info">
+                        <h6 class="text-info fw-bold mb-2">⚖️ Баланс КБЖУ</h6>
+                        <p id="aiBalanceVerdict" class="text-muted small mb-0">Завантаження...</p>
+                    </div>
+                </div>
+                <!-- Мікронутрієнти -->
+                <div class="col-md-4">
+                    <div class="h-100 p-3 bg-white rounded-3 shadow-sm border-start border-4 border-warning">
+                        <h6 class="text-warning fw-bold mb-2">🔬 Аналіз нутрієнтів</h6>
+                        <p id="aiMicronutrientsNotes" class="text-muted small mb-0">Завантаження...</p>
+                    </div>
+                </div>
+                <!-- Рекомендація -->
+                <div class="col-md-4">
+                    <div class="h-100 p-3 bg-white rounded-3 shadow-sm border-start border-4 border-success">
+                        <h6 class="text-success fw-bold mb-2">💡 Наступний прийом</h6>
+                        <p id="aiRecommendationForDinner" class="text-dark fw-medium small mb-0">Завантаження...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <form method="get" class="row g-3 mb-4">
         <div class="col-md-4">
             <label class="form-label">Дата</label>
-            <input type="date" name="SelectedDate" value="@Model.SelectedDate?.ToString("yyyy-MM-dd")" class="form-control" />
+            <input type="date" id="selectedDateInput" name="SelectedDate" value="@Model.SelectedDate?.ToString("yyyy-MM-dd")" class="form-control" />
         </div>
         <div class="d-flex gap-3 mb-4">
             <a class="btn btn-primary" asp-page="/FoodItems">➕Додати новий продукт</a>
@@ -107,12 +144,12 @@
             </tbody>
         </table>
 
-        <div class="alert alert-info">
+        <div class="alert alert-info shadow-sm">
             <strong>Сумарно:</strong>
-            Калорії: <strong>@Model.TotalCalories</strong> ккал |
-            Білки: <strong>@Model.TotalProteins</strong> г |
-            Жири: <strong>@Model.TotalFats</strong> г |
-            Вуглеводи: <strong>@Model.TotalCarbs</strong> г
+            Калорії: <strong class="text-primary">@Model.TotalCalories</strong> ккал |
+            Білки: <strong class="text-success">@Model.TotalProteins</strong> г |
+            Жири: <strong class="text-warning">@Model.TotalFats</strong> г |
+            Вуглеводи: <strong class="text-info">@Model.TotalCarbs</strong> г
         </div>
     }
     else
@@ -123,4 +160,61 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const btn = document.getElementById('btnAiAnalyzeNutrition');
+            if (!btn) return;
+
+            btn.addEventListener('click', async () => {
+                const resultBlock = document.getElementById('aiNutritionResult');
+                
+                // Беремо дату з поля або поточну
+                const dateInput = document.getElementById('selectedDateInput');
+                const selectedDate = dateInput && dateInput.value ? dateInput.value : new Date().toISOString().split('T')[0];
+
+                // Анімація кнопки
+                btn.disabled = true;
+                btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ⏳ Аналіз...`;
+                
+                // Показуємо скелетони/завантаження
+                document.getElementById('aiBalanceVerdict').innerHTML = `<span class="spinner-grow spinner-grow-sm text-info"></span> Обробка...`;
+                document.getElementById('aiMicronutrientsNotes').innerHTML = `<span class="spinner-grow spinner-grow-sm text-warning"></span> Звірка...`;
+                document.getElementById('aiRecommendationForDinner').innerHTML = `<span class="spinner-grow spinner-grow-sm text-success"></span> Генерація...`;
+                resultBlock.style.display = 'block';
+
+                try {
+                    const apiUrl = "@Model.ApiBaseUrl";
+                    const jwtToken = "@Model.JwtToken";
+
+                    const response = await fetch(`${apiUrl}/api/AI/analyze-daily-nutrition?date=${selectedDate}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${jwtToken}`,
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) throw new Error(`Помилка сервера: ${response.status}`);
+
+                    const data = await response.json();
+
+                    // Виведення даних із захистом від XSS
+                    document.getElementById('aiBalanceVerdict').innerText = data.balanceVerdict || "Дані відсутні";
+                    document.getElementById('aiMicronutrientsNotes').innerText = data.micronutrientsNotes || "Дані відсутні";
+                    document.getElementById('aiRecommendationForDinner').innerText = data.recommendationForDinner || "Дані відсутні";
+
+                } catch (err) {
+                    console.error("AI Nutrition Error:", err);
+                    document.getElementById('aiBalanceVerdict').innerText = "Помилка з'єднання.";
+                    document.getElementById('aiMicronutrientsNotes').innerText = "Не вдалося отримати дані.";
+                    document.getElementById('aiRecommendationForDinner').innerText = "Спробуйте пізніше.";
+                    alert("Не вдалося виконати AI-аналіз: " + err.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = "✨ AI-Аналіз дня";
+                }
+            });
+        });
+    </script>
 }

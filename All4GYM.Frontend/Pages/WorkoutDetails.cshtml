@@ -147,8 +147,7 @@
                 btn.innerHTML = "🤖 Запустити AI-Оптимізацію вправ";
             }
         });
-
-        // Функция экранирования HTML (Защита диплома от XSS уязвимостей)
+        
         function escapeHtml(unsafe) {
             if (!unsafe) return "Дані аналізу за цим критерієм відсутні.";
             return unsafe
