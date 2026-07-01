@@ -27,7 +27,7 @@ public class NutritionCalculatorModel : PageModel
     {
         [Required]
         [JsonPropertyName("gender")]
-        public string Gender { get; set; } = "male";
+        public string Gender { get; set; } = "Male";
 
         [Required]
         [Range(10, 120)]
@@ -35,36 +35,57 @@ public class NutritionCalculatorModel : PageModel
         public int Age { get; set; }
 
         [Required]
-        [Range(30, 250)]
-        [JsonPropertyName("weight")]
-        public float Weight { get; set; } // kg
-
-        [Required]
         [Range(100, 250)]
-        [JsonPropertyName("height")]
-        public float Height { get; set; } // cm
+        [JsonPropertyName("heightCm")]
+        public float Height { get; set; } 
+        
+        [Required]
+        [Range(30, 250)]
+        [JsonPropertyName("weightKg")]
+        public float Weight { get; set; } 
 
         [Required]
         [JsonPropertyName("activityLevel")]
-        public string ActivityLevel { get; set; } = "moderate";
+        public string ActivityLevel { get; set; } = "ModeratelyActive";
 
         [Required]
         [JsonPropertyName("goal")]
-        public string Goal { get; set; } = "maintain";
+        public string Goal { get; set; } = "Maintain";
     }
 
     public class NutritionResult
     {
-        [JsonPropertyName("calories")]
+        [JsonPropertyName("bmr")]
+        public int Bmr { get; set; }
+
+        [JsonPropertyName("tdee")]
+        public int Tdee { get; set; }
+
+        [JsonPropertyName("targetCalories")]
         public int Calories { get; set; }
 
-        [JsonPropertyName("proteinGrams")]
+        [JsonPropertyName("bmi")]
+        public double Bmi { get; set; }
+
+        [JsonPropertyName("bmiStatus")]
+        public string BmiStatus { get; set; } = string.Empty;
+
+        [JsonPropertyName("healthyWeightMin")]
+        public double HealthyWeightMin { get; set; }
+
+        [JsonPropertyName("healthyWeightMax")]
+        public double HealthyWeightMax { get; set; }
+
+        [JsonPropertyName("weightDifference")]
+        public double WeightDifference { get; set; }
+
+        [JsonPropertyName("targetProteins")]
         public float Protein { get; set; }
 
-        [JsonPropertyName("fatGrams")]
+        [JsonPropertyName("targetFats")]
         public float Fat { get; set; }
 
-        [JsonPropertyName("carbsGrams")]
+        [JsonPropertyName("targetCarbs")]
         public float Carbs { get; set; }
     }
 
@@ -104,21 +125,11 @@ public class NutritionCalculatorModel : PageModel
         return Page();
     }
 
-    
     public async Task<IActionResult> OnPostAsync()
     {
         if (!ModelState.IsValid)
         {
             Console.WriteLine("❌ ModelState is invalid.");
-            foreach (var key in ModelState.Keys)
-            {
-                var errors = ModelState[key]?.Errors;
-                if (errors != null && errors.Count > 0)
-                {
-                    Console.WriteLine($"❌ Error in '{key}': {string.Join(", ", errors.Select(e => e.ErrorMessage))}");
-                }
-            }
-
             return Page();
         }
 
@@ -147,5 +158,4 @@ public class NutritionCalculatorModel : PageModel
 
         return Page();
     }
-
 }

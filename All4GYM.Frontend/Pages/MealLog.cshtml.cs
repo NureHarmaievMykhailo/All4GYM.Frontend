@@ -36,6 +36,11 @@ public class MealLogModel : BasePageModel
     public float TotalProteins => Entries.Sum(e => e.Proteins);
     public float TotalFats => Entries.Sum(e => e.Fats);
     public float TotalCarbs => Entries.Sum(e => e.Carbs);
+    
+    public int TargetCalories { get; set; }
+    public float TargetProteins { get; set; }
+    public float TargetFats { get; set; }
+    public float TargetCarbs { get; set; }
 
     public class FoodItemOption
     {
@@ -82,8 +87,10 @@ public class MealLogModel : BasePageModel
         public float Grams { get; set; }
 
         [Required]
+        [JsonPropertyName("mealType")]
         public string MealType { get; set; } = "Breakfast";
         
+        [JsonPropertyName("date")]
         public DateTime Date { get; set; } = DateTime.Today;
     }
 
@@ -111,8 +118,17 @@ public class MealLogModel : BasePageModel
             {
                 return RedirectToPage("/AccessDenied");
             }
+            
+            if (profile.TryGetProperty("targetCalories", out var cal) && cal.ValueKind != JsonValueKind.Null)
+                TargetCalories = cal.GetInt32();
+            if (profile.TryGetProperty("targetProteins", out var prot) && prot.ValueKind != JsonValueKind.Null)
+                TargetProteins = prot.GetSingle();
+            if (profile.TryGetProperty("targetFats", out var fat) && fat.ValueKind != JsonValueKind.Null)
+                TargetFats = fat.GetSingle();
+            if (profile.TryGetProperty("targetCarbs", out var carb) && carb.ValueKind != JsonValueKind.Null)
+                TargetCarbs = carb.GetSingle();
         }
-        catch
+        catch (Exception ex)
         {
             return RedirectToPage("/AccessDenied");
         }
@@ -178,10 +194,10 @@ public class MealLogModel : BasePageModel
             return await OnGetAsync(); // Повертаємось на сторінку з помилкою
         }
 
-        return RedirectToPage(new
-        {
-            date = NewEntry.Date.ToString("yyyy-MM-dd"),
-            selectedMealType = SelectedMealType
+        return RedirectToPage(new 
+        { 
+            date = NewEntry.Date.ToString("yyyy-MM-dd"), 
+            selectedMealType = SelectedMealType 
         });
     }
 
@@ -192,7 +208,11 @@ public class MealLogModel : BasePageModel
 
         var client = CreateClient();
         var res = await client.DeleteAsync($"api/MealLog/{id}");
-        return RedirectToPage(new { date = SelectedDate?.ToString("yyyy-MM-dd"), selectedMealType = SelectedMealType });
+        return RedirectToPage(new 
+        { 
+            date = SelectedDate?.ToString("yyyy-MM-dd"), 
+            selectedMealType = SelectedMealType 
+        });
     }
 
     private HttpClient CreateClient()
