@@ -75,15 +75,13 @@
     <form method="post" asp-page="/MealLog" class="row g-3 mb-4">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-        <div class="col-md-4">
-            <label asp-for="NewEntry.FoodItemId" class="form-label">Продукт</label>
-            <select asp-for="NewEntry.FoodItemId" class="form-select">
-                <option value="">-- Оберіть --</option>
-                @foreach (var item in Model.FoodItems)
-                {
-                    <option value="@item.Id">@item.Name</option>
-                }
-            </select>
+        <div class="col-md-4 autocomplete-wrapper">
+            <label class="form-label">Продукт (пошук в базі або FatSecret)</label>
+            <input type="text" id="foodSearchInput" class="form-control" placeholder="Почніть вводити назву..." autocomplete="off" />
+    
+            <input type="hidden" id="selectedFoodId" name="SelectedCompositeFoodId" />
+    
+            <div id="autocompleteList" class="autocomplete-items" style="display: none;"></div>
         </div>
         <div class="col-md-2">
             <label asp-for="NewEntry.Grams" class="form-label">Вага (г)</label>
@@ -319,5 +317,73 @@
 
             }
         });
+        const searchInput = document.getElementById('foodSearchInput');
+        const hiddenInput = document.getElementById('selectedFoodId');
+        const autocompleteList = document.getElementById('autocompleteList');
+        let timeout = null;
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(timeout);
+                const query = this.value.trim();
+
+                if (query.length < 2) {
+                    autocompleteList.innerHTML = '';
+                    autocompleteList.style.display = 'none';
+                    hiddenInput.value = '';
+                    return;
+                }
+                
+                timeout = setTimeout(async () => {
+                    try {
+                        const response = await fetch(`/api/FoodSearch/autocomplete?query=${encodeURIComponent(query)}`);
+                        if (!response.ok) return;
+
+                        const items = await response.json();
+                        autocompleteList.innerHTML = '';
+
+                        if (items.length === 0) {
+                            autocompleteList.innerHTML = '<div class="p-3 text-muted small">Нічого не знайдено</div>';
+                            autocompleteList.style.display = 'block';
+                            return;
+                        }
+
+                        items.forEach(item => {
+                            const badgeClass = item.source === 'Local' ? 'bg-success' : 'bg-info';
+                            const badgeText = item.source === 'Local' ? 'Локальний' : 'FatSecret';
+
+                            const div = document.createElement('div');
+                            div.className = 'autocomplete-item';
+                            div.innerHTML = `
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong class="text-dark">${item.name}</strong>
+                                    <span class="badge ${badgeClass} text-white small">${badgeText}</span>
+                                </div>
+                                <div class="text-muted small mt-1">${item.description}</div>
+                            `;
+                            
+                            div.addEventListener('click', function() {
+                                searchInput.value = item.name;
+                                hiddenInput.value = item.id;
+                                autocompleteList.innerHTML = '';
+                                autocompleteList.style.display = 'none';
+                            });
+
+                            autocompleteList.appendChild(div);
+                        });
+
+                        autocompleteList.style.display = 'block';
+                    } catch (err) {
+                        console.error('Помилка автокомпіту:', err);
+                    }
+                }, 350);
+            });
+            
+            document.addEventListener('click', function(e) {
+                if (e.target !== searchInput && e.target !== autocompleteList) {
+                    autocompleteList.style.display = 'none';
+                }
+            });
+        }
     </script>
 }

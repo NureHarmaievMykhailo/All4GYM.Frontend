@@ -31,6 +31,9 @@ public class MealLogModel : BasePageModel
 
     [BindProperty]
     public NewEntryDto NewEntry { get; set; } = new();
+    
+    [BindProperty]
+    public string SelectedCompositeFoodId { get; set; } = null!;
 
     public float TotalCalories => Entries.Sum(e => e.Calories);
     public float TotalProteins => Entries.Sum(e => e.Proteins);
@@ -163,7 +166,10 @@ public class MealLogModel : BasePageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (!ModelState.IsValid || UserId == null) return await OnGetAsync();
+        ModelState.Remove("NewEntry.FoodItemId");
+
+        if (!ModelState.IsValid || string.IsNullOrEmpty(SelectedCompositeFoodId) || UserId == null) 
+            return await OnGetAsync();
         
         if (SelectedDate != null)
         {
@@ -174,24 +180,19 @@ public class MealLogModel : BasePageModel
             NewEntry.Date = DateTime.Today;
         }
 
-        var json = JsonSerializer.Serialize(NewEntry);
-        Console.WriteLine("📤 Payload: " + json);
-
         var client = CreateClient();
-
-        var content = new StringContent(
-            json,
-            Encoding.UTF8,
-            "application/json");
-
-        var res = await client.PostAsync("api/MealLog", content);
+        
+        var json = JsonSerializer.Serialize(NewEntry);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        
+        var res = await client.PostAsync($"api/MealLog/hybrid?compositeFoodId={SelectedCompositeFoodId}", content);
 
         if (!res.IsSuccessStatusCode)
         {
             var error = await res.Content.ReadAsStringAsync();
             Console.WriteLine($"❌ Error response: {error}");
             ModelState.AddModelError(string.Empty, $"Помилка: {error}");
-            return await OnGetAsync(); // Повертаємось на сторінку з помилкою
+            return await OnGetAsync();
         }
 
         return RedirectToPage(new 
@@ -200,7 +201,6 @@ public class MealLogModel : BasePageModel
             selectedMealType = SelectedMealType 
         });
     }
-
 
     public async Task<IActionResult> OnPostDeleteAsync(int id)
     {
