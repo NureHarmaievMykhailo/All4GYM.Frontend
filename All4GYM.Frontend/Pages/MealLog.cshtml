@@ -336,7 +336,8 @@
                 
                 timeout = setTimeout(async () => {
                     try {
-                        const response = await fetch(`/api/FoodSearch/autocomplete?query=${encodeURIComponent(query)}`);
+                        const apiUrl = "@Model.ApiBaseUrl";
+                        const response = await fetch(`${apiUrl}/api/FoodSearch/autocomplete?query=${encodeURIComponent(query)}`);
                         if (!response.ok) return;
 
                         const items = await response.json();
